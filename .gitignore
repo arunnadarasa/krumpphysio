@@ -1,0 +1,8 @@
+# Secrets and local config
+.env
+.openclaw/
+
+# OS and editor
+.DS_Store
+*.swp
+*.swo
