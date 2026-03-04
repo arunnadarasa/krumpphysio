@@ -23,7 +23,8 @@ Two pillars support **OpenClaw agents getting paid when they offer physiotherapy
 2. **Stripe (fiat payments)**  
    - **Enables** charging in fiat: subscriptions, per-session fees, clinic billing.  
    - Set `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env`.  
-   - The operator or platform charges patients or clinics; the OpenClaw physiotherapy agent is the service being monetized.
+   - The operator or platform charges patients or clinics; the OpenClaw physiotherapy agent is the service being monetized.  
+   - **Product link (test/sandbox):** [KrumpPhysio Session — £5/month](https://buy.stripe.com/test_28E7sL8jg3QG1Ol5nqcZa00).
 
 **Summary:** Anyway = *measure and prove what happened*; Stripe = *get paid for it*. Together they support a paid physiotherapy offering powered by OpenClaw.
 
@@ -56,5 +57,6 @@ OpenClaw + FLock + Telegram + Node scoring engine + Canton (Daml) + Anyway (obse
 ## Links
 
 - **Repo:** https://github.com/arunnadarasa/krumpphysio  
+- **Stripe product link (test):** https://buy.stripe.com/test_28E7sL8jg3QG1Ol5nqcZa00 (KrumpPhysio Session, £5/month)  
 - **Implementation guide:** [docs/IMPLEMENTATION-GUIDE-FLOCK-OPENCLAW-CANTON.md](IMPLEMENTATION-GUIDE-FLOCK-OPENCLAW-CANTON.md)  
 - **ClawHub skill:** [skills/krumpphysio/](../skills/krumpphysio/)
