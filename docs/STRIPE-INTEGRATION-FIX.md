@@ -107,5 +107,6 @@ Ensure plugin configuration captures tool I/O:
 
 ## See also
 
-- [docs/STRIPE.md](STRIPE.md) — Setup and usage
+- [STRIPE.md](STRIPE.md) — Setup and usage
+- [STRIPE-INTEGRATION-FIX-PROTOCOL.md](STRIPE-INTEGRATION-FIX-PROTOCOL.md) — Full protocol (ACP, verification, pitfalls)
 - [README.md](../README.md) — Test product link and optional Stripe section

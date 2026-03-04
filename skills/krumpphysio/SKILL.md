@@ -126,7 +126,7 @@ The goal is to **enable OpenClaw to get paid in fiat when offering physiotherapy
   ```bash
   node /path/to/KrumpPhysio/canton/create-stripe-link.js --price <cents> --currency gbp --description "KrumpPhysio session"
   ```
-  The script accepts `--price` or `--amount` (amount in cents), `--currency` (default usd), and `--description`. It uses the Stripe Node SDK and requires `stripe` + `dotenv` (`npm install` in repo). See [Stripe setup](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md) and [Stripe integration fix guide](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md).
+  The script accepts `--price` or `--amount` (amount in cents), `--currency` (default usd), and `--description`. It uses the Stripe Node SDK and requires `stripe` + `dotenv` (`npm install` in repo). See [STRIPE.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md), [STRIPE-INTEGRATION-FIX.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md), and [STRIPE-INTEGRATION-FIX-PROTOCOL.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md) (full protocol, ACP, pitfalls).
 
 **Summary:** Anyway = measure and prove what happened; Stripe = get paid for it.
 
