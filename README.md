@@ -50,8 +50,9 @@ Together these support **OpenClaw getting paid in fiat when offering physiothera
 Use [Guppy](https://docs.quantinuum.com/guppy/) (quantum programming in Python) and [Selene](https://docs.quantinuum.com/selene/) (Quantinuum’s emulator) to produce a **quantum-inspired exercise focus** (upper / lower / core / full) and intensity for the week. The agent can run the script via **exec** and use the result in coaching.
 
 ```bash
-# Install (Python 3.10+)
+# Requires Python 3.10+ (check: python3 --version). Upgrade pip first.
 python3 -m venv .venv-quantum && source .venv-quantum/bin/activate
+pip install --upgrade pip
 pip install -r quantum/requirements.txt
 
 # Run
@@ -59,7 +60,7 @@ python quantum/optimise_exercises.py --shots 5
 # Output: JSON with focus, intensity, shots (for battle-round schedule)
 ```
 
-See [quantum/README.md](quantum/README.md). Compatible with the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum) (Quantinuum hackathon).
+If `pip install` fails with "Could not find guppylang", see [quantum/README.md](quantum/README.md) (Python 3.10+ and pip upgrade). Compatible with the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum) (Quantinuum hackathon).
 
 ---
 

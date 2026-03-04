@@ -10,15 +10,26 @@ KrumpPhysio can use **Guppy** (quantum programming in Python) and **Selene** (Qu
 
 ## Install
 
+**Requires Python 3.10 or newer.** Guppy and Selene do not support Python 3.9 or below.
+
 From the repo root:
 
 ```bash
+# Use Python 3.10+ (check with: python3 --version)
+# On macOS if needed: brew install python@3.11 && python3.11 -m venv .venv-quantum
 python3 -m venv .venv-quantum
 source .venv-quantum/bin/activate   # or .venv-quantum\Scripts\activate on Windows
+
+# Upgrade pip first (old pip can fail to find guppylang)
+pip install --upgrade pip
+
 pip install -r quantum/requirements.txt
 ```
 
-Requires Python 3.10+.
+**If you see** `Could not find a version that satisfies the requirement guppylang`:
+
+1. **Upgrade pip:** `pip install --upgrade pip` then retry.
+2. **Check Python version:** `python3 --version` must be 3.10 or higher. If not, create the venv with a newer Python, e.g. `python3.11 -m venv .venv-quantum` (install from [python.org](https://www.python.org/downloads/) or `brew install python@3.11`).
 
 ## Run
 

@@ -1,4 +1,5 @@
 # Quantum exercise optimisation (Guppy + Selene)
-# Install in a venv: python -m venv .venv-quantum && .venv-quantum/bin/pip install -r quantum/requirements.txt
-guppylang>=0.21.0
-selene-sim>=0.2.0
+# Requires Python 3.10+. Upgrade pip first: pip install --upgrade pip
+# Then: python3 -m venv .venv-quantum && source .venv-quantum/bin/activate && pip install -r quantum/requirements.txt
+guppylang
+selene-sim
