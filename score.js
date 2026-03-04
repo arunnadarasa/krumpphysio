@@ -5,8 +5,17 @@
  * Example: node score.js '[{"joint":"left_shoulder","target":120,"observed":118}]' 1
  */
 
-const { spawn } = require('child_process');
 require('dotenv').config();
+
+const { spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+let cantonClient = null;
+try {
+  cantonClient = require('./canton/ledgerClient');
+} catch (_) {
+  // Canton integration is optional; ignore if client not present
+}
 
 const angles = JSON.parse(process.argv[2]);
 const round = process.argv[3];
@@ -18,7 +27,7 @@ const child = spawn('openclaw', [
   '--agent', process.env.AGENT_LABEL || 'krumpbot-fit',
   '--message', prompt,
   '--json'
-], { shell: true, stdio: 'pipe' });
+], { stdio: 'pipe' });
 
 let output = '';
 child.stdout.on('data', d => output += d.toString());
@@ -29,11 +38,52 @@ child.on('close', (code) => {
     console.error(`Agent exited ${code}`);
     process.exit(1);
   }
+
+  let text = output.trim();
   try {
     const parsed = JSON.parse(output);
-    const text = parsed.response || parsed.text || parsed.message || output.trim();
-    console.log(text);
-  } catch (e) {
-    console.log(output.trim());
+    text = parsed?.result?.payloads?.[0]?.text ?? parsed.response ?? parsed.text ?? parsed.message ?? text;
+  } catch (_) {
+    // leave text as-is if JSON parse fails
   }
+
+  // Best-effort score extraction: look for first "<number>/10" anywhere (e.g. "Score: 9.7/10" in body)
+  let score = null;
+  const match = text.match(/(\d+(?:\.\d+)?)\s*\/\s*10/);
+  if (match) {
+    score = Number(match[1]);
+  }
+
+  // Append JSONL metrics entry
+  try {
+    const logDir = path.join(__dirname, 'logs');
+    const logFile = path.join(logDir, 'score-log.jsonl');
+    fs.mkdirSync(logDir, { recursive: true });
+    const entry = {
+      ts: new Date().toISOString(),
+      round,
+      angles,
+      score,
+      raw: text
+    };
+    fs.appendFileSync(logFile, JSON.stringify(entry) + '\n');
+  } catch (err) {
+    console.error('Warning: failed to write score log:', err.message);
+  }
+
+  // Optional: also persist to Canton ledger if configured
+  if (cantonClient && process.env.CANTON_ENABLE === 'true') {
+    cantonClient
+      .logSessionToCanton({
+        score,
+        round,
+        angles,
+        text,
+      })
+      .catch((err) => {
+        console.error('Warning: failed to log session to Canton:', err.message || err);
+      });
+  }
+
+  console.log(text);
 });
