@@ -117,6 +117,15 @@ Run a scoring or coaching session. Traces should appear in the Anyway dashboard 
 - For multiple agents, use a distinct `serviceName` per agent (or override via `OTEL_SERVICE_NAME` in the agent’s environment if supported).
 - Standard OpenTelemetry env vars work as fallbacks: `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_SERVICE_NAME`, `OTEL_TRACES_SAMPLER_ARG`.
 
+## Monetization (Anyway + Stripe)
+
+The goal is to **enable OpenClaw to get paid in fiat when offering physiotherapy to patients**. Two parts:
+
+- **Anyway** – Observability only (traces, cost, tool IO). It does *not* process payments; it supports trust, tuning, and cost control so you can run a paid service transparently.
+- **Stripe** – Actual fiat payments: subscriptions, per-session fees, clinic billing. Configure `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env` so the operator or platform can charge for the physio agent’s services.
+
+**Summary:** Anyway = measure and prove what happened; Stripe = get paid for it.
+
 ## Stack reference
 
 - **OpenClaw** – agent framework; **FLock** – LLM provider; **Canton** – Daml ledger for SessionLog contracts; **Anyway** – optional observability (traces/tool IO) via `@anyway-sh/anyway-openclaw`.

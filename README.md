@@ -30,16 +30,18 @@ Session scores can be written to a local Daml ledger (Canton) for auditability a
 
 A [ClawHub skill](skills/krumpphysio/SKILL.md) is included so other OpenClaw agents can learn the KrumpPhysio coach pattern (identity, scoring, Laban notation, optional Canton logging). See [skills/krumpphysio/PUBLISH.md](skills/krumpphysio/PUBLISH.md) for how to publish to ClawHub.
 
-### Optional: Anyway & Stripe
+### Optional: Anyway & Stripe (observability + fiat payments)
 
-- **Anyway** – LLM observability: set `ANYWAY_API_KEY` in `.env` and use the Python wrapper:
+Together these support **OpenClaw getting paid in fiat when offering physiotherapy to patients**:
+
+- **Anyway** – Observability (traces, token usage, tool IO). Does *not* process payments; it lets you measure and prove what the agent did and what it cost. Set `ANYWAY_API_KEY` in `.env` and use the Python wrapper or the OpenClaw plugin `@anyway-sh/anyway-openclaw`. See [skills/krumpphysio/SKILL.md](skills/krumpphysio/SKILL.md) § Observability.
   ```bash
-  # from repo root, with .venv created as per docs
   source .venv/bin/activate
   python -m telemetry.trace_score '[{"joint":"left_shoulder","target":120,"observed":118}]' 1
   ```
-  This initialises `Traceloop.init(app_name=\"krumpphysio\", api_endpoint=\"collector.anyway.sh:4317\", headers={Authorization: Bearer ANYWAY_API_KEY})` and then calls `node score.js ...` so each scoring session is traced in Anyway.
-- **Stripe** – Payments: set `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env` for paid sessions or subscriptions. Never commit `.env`; use [.env.example](.env.example) as a template.
+- **Stripe** – Fiat payments: subscriptions, per-session fees, clinic billing. Set `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env`. Never commit `.env`; use [.env.example](.env.example) as a template.
+
+**Summary:** Anyway = measure and prove; Stripe = get paid. Website/product copy: [docs/website-description.md](docs/website-description.md).
 
 ---
 

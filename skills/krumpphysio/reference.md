@@ -31,6 +31,10 @@ Use **exec**; do not call a tool named `log_krumpphysio_session`.
 
 Use the OpenClaw plugin `@anyway-sh/anyway-openclaw` for traces and tool IO in Anyway. Configure in `~/.openclaw/openclaw.json` under `plugins.entries["anyway-openclaw"]`; set `serviceName`, `captureToolIO: true`, and Bearer token in `headers`. Restart gateway after config. See SKILL.md § Observability.
 
+## Monetization
+
+**Anyway** = observability (measure/prove); **Stripe** = fiat payments. Together they support OpenClaw getting paid when offering physiotherapy to patients. See SKILL.md § Monetization.
+
 ## Links
 
 - Repo: https://github.com/arunnadarasa/krumpphysio  
