@@ -14,6 +14,7 @@ This skill teaches an OpenClaw agent how to behave as a **Krump-inspired physiot
 - User wants **Krump-style** warmups, drills, or feedback ("battle round" framing).
 - You need to **log sessions to Canton** for auditability (when the KrumpPhysio stack is configured).
 - Building or extending agents for **SDG 3** (Good Health and Well-being) with a focus on non-communicable disease and rehab adherence.
+- User asks for **quantum-inspired** or **quantum-optimised** exercise schedules (Guppy + Selene integration).
 
 ## Agent identity (who to be)
 
@@ -39,6 +40,16 @@ When the user provides **joint angles** (target vs observed), e.g. left shoulder
 2. Give brief feedback (form, compensation, safety).
 3. Add Laban-style notation for the movement.
 4. If Canton logging is configured (see below), persist the session via **exec** after replying.
+
+## Quantum-inspired exercise optimisation (optional)
+
+When the user wants a **quantum-inspired** or **quantum-optimised** exercise plan for the week, run **exec** with the Guppy + Selene script (replace path with the actual KrumpPhysio repo path):
+
+```bash
+python /path/to/KrumpPhysio/quantum/optimise_exercises.py --shots 5
+```
+
+Parse the JSON from stdout: `focus` (upper / lower / core / full) and `intensity` (light / moderate / strong). Use them in your reply (e.g. "This week's battle rounds: **upper** focus, **moderate** intensity — quantum-inspired schedule."). Requires `pip install -r quantum/requirements.txt` (guppylang, selene-sim). See [quantum/README.md](https://github.com/arunnadarasa/krumpphysio/blob/main/quantum/README.md). If the agent has the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum), use it for Quantinuum/Guppy/Selene context.
 
 ## Authentic krump (optional skills)
 

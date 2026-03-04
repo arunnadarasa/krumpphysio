@@ -40,9 +40,26 @@ Together these support **OpenClaw getting paid in fiat when offering physiothera
   python -m telemetry.trace_score '[{"joint":"left_shoulder","target":120,"observed":118}]' 1
   ```
 - **Stripe** – Fiat payments: subscriptions, per-session fees, clinic billing. Set `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env`. Never commit `.env`; use [.env.example](.env.example) as a template.
+  - **Create a payment link (no CLI needed):** `node canton/create-stripe-link.js --amount <cents> --currency gbp --description "..."` — requires `STRIPE_SECRET_KEY` in `.env`. See [docs/STRIPE.md](docs/STRIPE.md).
   - **Test product link (sandbox):** [KrumpPhysio Session — £5/month](https://buy.stripe.com/test_28E7sL8jg3QG1Ol5nqcZa00) (for hackathon / Anyway bounty submission).
 
 **Summary:** Anyway = measure and prove; Stripe = get paid. Website/product copy: [docs/website-description.md](docs/website-description.md).
+
+### Optional: Quantum-inspired exercise optimisation (Guppy + Selene)
+
+Use [Guppy](https://docs.quantinuum.com/guppy/) (quantum programming in Python) and [Selene](https://docs.quantinuum.com/selene/) (Quantinuum’s emulator) to produce a **quantum-inspired exercise focus** (upper / lower / core / full) and intensity for the week. The agent can run the script via **exec** and use the result in coaching.
+
+```bash
+# Install (Python 3.10+)
+python3 -m venv .venv-quantum && source .venv-quantum/bin/activate
+pip install -r quantum/requirements.txt
+
+# Run
+python quantum/optimise_exercises.py --shots 5
+# Output: JSON with focus, intensity, shots (for battle-round schedule)
+```
+
+See [quantum/README.md](quantum/README.md). Compatible with the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum) (Quantinuum hackathon).
 
 ---
 

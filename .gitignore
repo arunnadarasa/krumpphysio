@@ -2,6 +2,7 @@
 .env
 .openclaw/
 .venv/
+.venv-quantum/
 __pycache__/
 *.pyc
 
