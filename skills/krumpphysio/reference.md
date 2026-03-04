@@ -39,6 +39,6 @@ Use the OpenClaw plugin `@anyway-sh/anyway-openclaw` for traces and tool IO in A
 
 - Repo: https://github.com/arunnadarasa/krumpphysio  
 - Implementation guide: `docs/IMPLEMENTATION-GUIDE-FLOCK-OPENCLAW-CANTON.md`  
-- Stripe: `docs/STRIPE.md`, `docs/STRIPE-INTEGRATION-FIX.md`, `docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md`  
+- Stripe: `docs/STRIPE.md`, `docs/STRIPE-INTEGRATION-FIX.md`, `docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md`, `docs/STRIPE-PROTOCOL-QUICKSTART.md`  
 - ClawHub krump: https://clawhub.ai/arunnadarasa/krump  
 - ClawHub asura: https://clawhub.ai/arunnadarasa/asura  

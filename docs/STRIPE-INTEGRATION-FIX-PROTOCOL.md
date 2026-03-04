@@ -2,6 +2,8 @@
 
 *Validated on OpenClaw 2026.3.2 with Qwen models*
 
+**Quick setup:** See [STRIPE-PROTOCOL-QUICKSTART.md](STRIPE-PROTOCOL-QUICKSTART.md) for a 5-minute checklist.
+
 ## Core Issues Resolved
 
 | Issue | Symptom | Impact |
@@ -194,6 +196,7 @@ curl -sI $(node canton/create-stripe-link.js --price 100 --currency usd --descri
 
 ## See also
 
+- [STRIPE-PROTOCOL-QUICKSTART.md](STRIPE-PROTOCOL-QUICKSTART.md) — 5-minute quick setup
 - [STRIPE.md](STRIPE.md) — Setup and usage
 - [STRIPE-INTEGRATION-FIX.md](STRIPE-INTEGRATION-FIX.md) — Shorter fix guide
 - [agent/IDENTITY.md](../agent/IDENTITY.md) — Exec command for payment links
