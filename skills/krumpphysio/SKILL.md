@@ -122,7 +122,11 @@ Run a scoring or coaching session. Traces should appear in the Anyway dashboard 
 The goal is to **enable OpenClaw to get paid in fiat when offering physiotherapy to patients**. Two parts:
 
 - **Anyway** – Observability only (traces, cost, tool IO). It does *not* process payments; it supports trust, tuning, and cost control so you can run a paid service transparently.
-- **Stripe** – Actual fiat payments: subscriptions, per-session fees, clinic billing. Configure `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env` so the operator or platform can charge for the physio agent’s services.
+- **Stripe** – Actual fiat payments: subscriptions, per-session fees, clinic billing. Set `STRIPE_SECRET_KEY` in `.env` (repo root). **Do not** use the Stripe CLI (`stripe` command) — it is not required and may not be installed. To create a payment link, use **exec** with the Node script:
+  ```bash
+  node /path/to/KrumpPhysio/canton/create-stripe-link.js --price <cents> --currency gbp --description "KrumpPhysio session"
+  ```
+  The script accepts `--price` or `--amount` (amount in cents), `--currency` (default usd), and `--description`. It uses the Stripe Node SDK and requires `stripe` + `dotenv` (`npm install` in repo). See [Stripe setup](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md) and [Stripe integration fix guide](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md).
 
 **Summary:** Anyway = measure and prove what happened; Stripe = get paid for it.
 

@@ -33,11 +33,12 @@ Use the OpenClaw plugin `@anyway-sh/anyway-openclaw` for traces and tool IO in A
 
 ## Monetization
 
-**Anyway** = observability (measure/prove); **Stripe** = fiat payments. Together they support OpenClaw getting paid when offering physiotherapy to patients. See SKILL.md § Monetization.
+**Anyway** = observability (measure/prove); **Stripe** = fiat payments. For payment links use **exec** with `node .../canton/create-stripe-link.js --price <cents> --currency gbp --description "..."`; do not use the `stripe` CLI. Set `STRIPE_SECRET_KEY` in `.env`. See SKILL.md § Monetization; [STRIPE.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md), [STRIPE-INTEGRATION-FIX.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md).
 
 ## Links
 
 - Repo: https://github.com/arunnadarasa/krumpphysio  
 - Implementation guide: `docs/IMPLEMENTATION-GUIDE-FLOCK-OPENCLAW-CANTON.md`  
+- Stripe: `docs/STRIPE.md`, `docs/STRIPE-INTEGRATION-FIX.md`  
 - ClawHub krump: https://clawhub.ai/arunnadarasa/krump  
 - ClawHub asura: https://clawhub.ai/arunnadarasa/asura  
