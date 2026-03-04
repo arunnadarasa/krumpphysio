@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * KrumpFit: Score therapeutic movements using OpenClaw agent
+ * KrumpPhysio: Score therapeutic movements using OpenClaw agent
  * Usage: node score.js '<angles_json>' <round>
  * Example: node score.js '[{"joint":"left_shoulder","target":120,"observed":118}]' 1
  */
