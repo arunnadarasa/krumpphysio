@@ -4,7 +4,7 @@ This folder is a **ClawHub-compatible skill** so other OpenClaw agents can learn
 
 ## What’s in this skill
 
-- **SKILL.md** – Name, description, and full instructions (identity, coaching, scoring, Canton, examples).
+- **SKILL.md** – Name, description, and full instructions (identity, coaching, scoring, Canton, Anyway observability, examples).
 - **reference.md** – Short reference for agents.
 - **PUBLISH.md** – This file.
 

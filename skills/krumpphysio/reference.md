@@ -27,6 +27,10 @@ node /path/to/KrumpPhysio/canton/log-session.js --score <score> --round <round> 
 
 Use **exec**; do not call a tool named `log_krumpphysio_session`.
 
+## Observability (Anyway)
+
+Use the OpenClaw plugin `@anyway-sh/anyway-openclaw` for traces and tool IO in Anyway. Configure in `~/.openclaw/openclaw.json` under `plugins.entries["anyway-openclaw"]`; set `serviceName`, `captureToolIO: true`, and Bearer token in `headers`. Restart gateway after config. See SKILL.md § Observability.
+
 ## Links
 
 - Repo: https://github.com/arunnadarasa/krumpphysio  
