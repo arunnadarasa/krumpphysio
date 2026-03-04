@@ -1,6 +1,9 @@
 # Secrets and local config
 .env
 .openclaw/
+.venv/
+__pycache__/
+*.pyc
 
 # OS and editor
 .DS_Store
