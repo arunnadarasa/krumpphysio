@@ -4,7 +4,7 @@ AI krump-inspired physiotherapy coach for the **UK AI Agent Hackathon EP4 x Open
 
 - **Goal:** Support **SDG 3 – Good Health and Well-being** with a focus on **Target 3.4 (reduce premature mortality from non-communicable diseases)** by helping people stick to rehab and cardio routines through gamified Krump movement.
 - **Concept:** Turn daily physiotherapy and cardio exercises into Krump-style movement challenges. The agent scores form, range of motion and consistency, then frames feedback as a “battle round” to keep motivation high.
-- **Stack (high level):** OpenClaw agents, OpenRouter → FLock (step-3.5-flash + Qwen3 Coder), optional vision / pose-estimation sidecar, KrumpKlaw-style scoring for battles.
+- **Stack (high level):** OpenClaw agents using **FLock API Platform** (e.g. `qwen3-235b-a22b-thinking-2507` for brain + `qwen3-30b-a3b-instruct-coding` for code), optional vision / pose-estimation sidecar, KrumpKlaw-style scoring for battles.
 
 See the project breakdown (Notion) for stages and timeline, and the official SDG 3 specification for context:
 
