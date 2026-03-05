@@ -2,9 +2,28 @@
 .env
 .openclaw/
 .venv/
+.venv-video/
 .venv-quantum/
 __pycache__/
 *.pyc
+
+# Video analysis outputs (generated)
+video/output/
+
+# Video samples (except test videos we want to include)
+# video/samples/ - keeping samples for testing
+
+# Development notes (personal)
+analysis_dev/
+
+# Node modules
+node_modules/
+
+# MediaPipe model (auto-downloaded)
+video/*.task
+
+# Logs
+logs/
 
 # OS and editor
 .DS_Store
