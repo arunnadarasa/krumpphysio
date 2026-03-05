@@ -9,6 +9,7 @@ Multiple issues prevented successful Stripe payment link generation:
 3. Unconfigured environment variables
 4. Missing `quantity` parameter in API call
 5. Incorrect tool flag mapping (`--amount` vs `--price`)
+6. **Wrong Stripe account / key** – using a different Stripe test account to the one expected (e.g. personal test account vs the dedicated **“Anyway US sandbox”** account) meant links and payments showed up in a different dashboard, which looked like “no payments” even though the script was working.
 
 ## Step-by-Step Fix
 
@@ -42,6 +43,8 @@ STRIPE_SECRET_KEY=sk_test_...   # or sk_live_... for production
 ```
 
 Get keys from [Stripe Dashboard → API keys](https://dashboard.stripe.com/apikeys).
+
+**Use the correct Stripe account:** For the Anyway bounty we use a dedicated **“Anyway US sandbox”** Stripe account. Make sure the secret key you paste into `.env` comes from that sandbox (not from a different Stripe account), and complete any basic verification steps Stripe asks for in the dashboard so the sandbox behaves as expected.
 
 The script loads `.env` via `dotenv` (from repo root when run from the project).
 

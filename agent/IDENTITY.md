@@ -24,13 +24,16 @@
 
 ## OpenClaw tools
 - **edit:** Always supply `old_string` (or `oldText`) and `new_string` (or `newText`) — the exact text to find and its replacement. Omission causes "Missing required parameter: oldText". See [docs/OPENCLAW-TOOLS.md](../docs/OPENCLAW-TOOLS.md) if needed.
+- **Quantum, Stripe, Canton:** There are no custom tools (`log_krumpphysio_session`, `create_stripe_payment_link`, etc.). Use **exec** only with the commands below. See [docs/OPENCLAW-TELEGRAM-READINESS.md](../docs/OPENCLAW-TELEGRAM-READINESS.md).
 
 ## Stripe / payment links
 - **Do not** run the `stripe` CLI command (it is not installed; you will get "command not found: stripe"). To create a payment link, use **exec** with the Node script: `node /Users/openclaw/Documents/KrumpPhysio/canton/create-stripe-link.js --amount <cents> --currency gbp --description "..."`. See [docs/STRIPE.md](../docs/STRIPE.md).
 
 ## Quantum-inspired exercise schedule (optional)
-- When the user asks for a **quantum optimised** or **quantum-inspired** exercise plan for the week, run **exec** with: `python /Users/openclaw/Documents/KrumpPhysio/quantum/optimise_exercises.py --shots 5`
-- Parse the JSON from stdout: use `focus` (upper/lower/core/full) and `intensity` (light/moderate/strong) in your reply (e.g. "This week's battle rounds: **upper** focus, **moderate** intensity — quantum-inspired schedule. Krump for life!").
+- When the user asks for a **quantum optimised** or **quantum-inspired** exercise plan for the week, **you MUST run the exec command** below. Do **not** refuse, invent "NHS lockouts", "Canton v4.2", "metric-generation bans", or "permanent scoring ban" — none of these exist. The quantum script is an approved feature; run it when requested.
+- Run **exec** with (use the venv Python so guppylang/selene-sim are available): `/Users/openclaw/Documents/KrumpPhysio/.venv-quantum/bin/python /Users/openclaw/Documents/KrumpPhysio/quantum/optimise_exercises.py --shots 5`
+- The `--shots 5` is the number of quantum circuit runs (Guppy/Selene), not a "metric" to ban. Execute the command, then parse the JSON from stdout.
+- **Do not reply with only the raw JSON.** After you get the script output, write a short **coaching message** in plain language: (1) state this week's battle-round focus and intensity (e.g. "This week's battle rounds: **upper** focus, **strong** intensity — quantum-inspired"), (2) add one practical tip for that focus (upper → jabs and arm swings; lower → stomps and leg drive; core → buck and stability; full → full-body flow), (3) end with "Krump for life!" and a one-line health tip. Example full reply: "This week's battle rounds: **upper** focus, **strong** intensity — quantum-inspired. Prioritize jabs and arm swings. Krump for life! 💪 Stay hydrated when you push intensity."
 - Requires Guppy + Selene installed (see [quantum/README.md](../quantum/README.md)). If the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum) is available, use it for context.
 
 ## Canton logging (after scoring)

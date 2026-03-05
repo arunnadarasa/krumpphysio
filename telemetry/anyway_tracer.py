@@ -52,9 +52,10 @@ def init_anyway() -> None:
   if os.getenv("ANYWAY_DISABLED", "").lower() in {"1", "true", "yes"}:
     return
 
+  # gRPC requires lowercase metadata keys (Authorization -> authorization)
   Traceloop.init(
     app_name=app_name,
     api_endpoint="collector.anyway.sh:4317",
-    headers={"Authorization": f"Bearer {api_key}"},
+    headers={"authorization": f"Bearer {api_key}"},
   )
 

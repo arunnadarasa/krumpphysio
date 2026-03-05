@@ -15,21 +15,18 @@ KrumpPhysio can use **Guppy** (quantum programming in Python) and **Selene** (Qu
 From the repo root:
 
 ```bash
-# Use Python 3.10+ (check with: python3 --version)
-# On macOS if needed: brew install python@3.11 && python3.11 -m venv .venv-quantum
-python3 -m venv .venv-quantum
-source .venv-quantum/bin/activate   # or .venv-quantum\Scripts\activate on Windows
+# Guppy requires Python 3.10+. macOS often ships 3.9 — use python3.11 explicitly:
+#   brew install python@3.11   # if not installed
+python3.11 -m venv .venv-quantum
+source .venv-quantum/bin/activate   # Windows: .venv-quantum\Scripts\activate
 
-# Upgrade pip first (old pip can fail to find guppylang)
 pip install --upgrade pip
-
 pip install -r quantum/requirements.txt
 ```
 
 **If you see** `Could not find a version that satisfies the requirement guppylang`:
 
-1. **Upgrade pip:** `pip install --upgrade pip` then retry.
-2. **Check Python version:** `python3 --version` must be 3.10 or higher. If not, create the venv with a newer Python, e.g. `python3.11 -m venv .venv-quantum` (install from [python.org](https://www.python.org/downloads/) or `brew install python@3.11`).
+- Your venv was created with Python 3.9 or older. **Recreate the venv with Python 3.10+**, e.g. `python3.11 -m venv .venv-quantum` (after `brew install python@3.11` or [python.org](https://www.python.org/downloads/)). Then activate and run the `pip install` lines again.
 
 ## Run
 

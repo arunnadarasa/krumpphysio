@@ -30,7 +30,8 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 **KrumpPhysio: rehab as battle rounds.**
 
 - **AI coach** that scores form and range of motion, gives feedback in **Krump** vocabulary and **Laban** notation
-- **Telegram** — patients message the agent like a coach
+- **Telegram** — patients message the agent; **exec** runs on both Chat and Telegram when KrumpPhysio is default (quantum plan, Stripe, Canton)
+- **Quantum-inspired plans** — Guppy + Selene script → weekly focus and intensity; agent replies with short coaching message (not raw JSON)
 - **Auditable** — optional session logs on a **Canton (Daml)** ledger
 - **Monetizable** — **Anyway** for observability, **Stripe** for fiat payments
 
@@ -60,8 +61,9 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 | Ledger | **Canton** (Daml `SessionLog` contracts) |
 | Observability | **Anyway** (Traceloop / OpenClaw plugin) |
 | Payments | **Stripe** (Node SDK, payment links; no CLI) |
+| Quantum (optional) | **Guppy + Selene** (quantum-inspired weekly focus/intensity; exec on Chat + Telegram) |
 
-**Design:** Agent decides when to score and when to log to Canton; operator gets full observability and can monetize via Stripe.
+**Design:** Agent decides when to score and when to log to Canton; operator gets full observability and can monetize via Stripe. KrumpPhysio as default agent so exec (quantum, Stripe, Canton) runs on both Chat and Telegram.
 
 ---
 
@@ -107,8 +109,9 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 **OpenClaw as core runtime**
 
-- **Agents:** KrumpPhysio (krumpbot-fit) and others; identity, SOUL, tools (exec, read, edit, etc.).
-- **Multi-channel:** **Telegram** (group + DM) bound to the agent; gateway handles routing.
+- **Agents:** KrumpPhysio (krumpbot-fit) as **default** (first in `agents.list`) so Chat and Telegram both use it; identity, SOUL, tools (exec, read, edit, etc.).
+- **Multi-channel:** **Telegram** (group + DM) bound to krumpbot-fit; **exec** runs on both Chat and Telegram (quantum script, Stripe, Canton) when KrumpPhysio is default.
+- **Best practices:** Paste instruction first to lock exec + comprehensive reply; reply format = focus + intensity + tip + “Krump for life!” + health tip (see repo BEST-PRACTICES.md).
 - **Canton logging:** Agent uses **exec** to run `log-session.js` when it decides a session should be on-ledger (OpenClaw 2026.3.x: no custom tool definitions; exec is the supported pattern).
 
 ---
@@ -129,8 +132,8 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 **Live demo**
 
-- Open **Telegram** → message KrumpPhysio with a scoring request (e.g. angles + round).
-- Show **reply** (score /10, feedback, Laban, “Krump for life!”).
+- Open **Telegram** → message KrumpPhysio with “Give me a quantum-inspired exercise plan” or a scoring request (e.g. angles + round).
+- Show **reply** (quantum: focus + intensity + tip + “Krump for life!”; or score /10, feedback, Laban).
 - Optional: show **Canton** Navigator or `summary.js` for session logs; **Anyway** dashboard for traces; **Stripe** test link.
 
 *Use this slide for screen share or embedded short clip.*
@@ -143,7 +146,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 - **Repo:** [github.com/arunnadarasa/krumpphysio](https://github.com/arunnadarasa/krumpphysio)
 - **README:** Overview, setup, Canton, Anyway & Stripe, ClawHub skill.
-- **Docs:** Implementation guide (FLock + OpenClaw + Canton), Stripe setup & integration fix protocol, web search (Kimi), OpenClaw tools.
+- **Docs:** Implementation guide (FLock + OpenClaw + Canton), Stripe setup & integration fix protocol, web search (Kimi), OpenClaw tools, **best practices** (default agent, paste instruction, comprehensive quantum reply).
 
 **ClawHub skill:** Other OpenClaw agents can install the KrumpPhysio coaching pattern.
 

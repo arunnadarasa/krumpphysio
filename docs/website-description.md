@@ -41,12 +41,13 @@ Two pillars support **OpenClaw agents getting paid when they offer physiotherapy
 ## What it does
 
 - **Movement & ROM scoring** — Joint angles in → score out of 10, feedback, and Laban-style notation.
-- **Telegram coaching** — Patients message the agent; responses use Krump vocabulary and health-first advice.
+- **Telegram coaching** — Patients message the agent; responses use Krump vocabulary and health-first advice. When KrumpPhysio is the default agent, **exec** runs on both Chat and Telegram (quantum plan, payment links, Canton logging).
+- **Quantum-inspired exercise plans** — Guppy + Selene script produces weekly focus (upper/lower/core/full) and intensity; agent replies with a short coaching message (not raw JSON). Works from OpenClaw Chat and Telegram.
 - **Canton session logs** — Optional tamper-evident `SessionLog` contracts on a Daml ledger for auditability.
 - **Observability (Anyway)** — Traces and tool IO so you can debug, tune, and control cost.
 - **Stripe payment links** — Create one-off or product links via `canton/create-stripe-link.js` (Stripe Node SDK; no CLI required). Full integration fix protocol and 5-minute quickstart in the repo.
 - **Web search (optional)** — When configured (e.g. Kimi), the agent can use web search for up-to-date info.
-- **Reusable skill** — ClawHub skill so other OpenClaw agents can adopt the same coaching pattern.
+- **Reusable skill** — ClawHub skill so other OpenClaw agents can adopt the same coaching pattern. Best practices (default agent, paste instruction first, comprehensive reply) in the repo.
 
 ---
 
@@ -77,4 +78,6 @@ OpenClaw + FLock + Telegram + Node scoring engine + Canton (Daml) + Anyway (obse
 | Stripe 5-minute quickstart | [STRIPE-PROTOCOL-QUICKSTART.md](STRIPE-PROTOCOL-QUICKSTART.md) |
 | OpenClaw web search (Kimi, etc.) | [OPENCLAW-WEB-SEARCH.md](OPENCLAW-WEB-SEARCH.md) |
 | OpenClaw edit tool (old_string / new_string) | [OPENCLAW-TOOLS.md](OPENCLAW-TOOLS.md) |
+| Best practices (default agent, quantum reply, exec) | [BEST-PRACTICES.md](BEST-PRACTICES.md) |
+| OpenClaw Chat + Telegram (exec, default agent) | [OPENCLAW-TELEGRAM-READINESS.md](OPENCLAW-TELEGRAM-READINESS.md) |
 | Canton + Telegram test run | [canton-telegram-test-run.md](canton-telegram-test-run.md) |

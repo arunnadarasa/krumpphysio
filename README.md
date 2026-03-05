@@ -40,20 +40,21 @@ Together these support **OpenClaw getting paid in fiat when offering physiothera
   python -m telemetry.trace_score '[{"joint":"left_shoulder","target":120,"observed":118}]' 1
   ```
 - **Stripe** – Fiat payments: subscriptions, per-session fees, clinic billing. Set `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env`. Never commit `.env`; use [.env.example](.env.example) as a template.
-  - **Create a payment link (no CLI needed):** `node canton/create-stripe-link.js --amount <cents> --currency gbp --description "..."` — requires `STRIPE_SECRET_KEY` in `.env`. See [docs/STRIPE.md](docs/STRIPE.md).
+  - **Use the correct Stripe account:** For the Anyway bounty we use a dedicated **“Anyway US sandbox”** Stripe account. Make sure `STRIPE_SECRET_KEY` comes from that sandbox (not a personal Stripe account), and complete the basic account verification Stripe asks for in its dashboard, or payments/links may not appear where you expect.
+  - **Create a payment link (no CLI needed):** `node canton/create-stripe-link.js --amount <cents> --currency gbp --description "..."` — requires `STRIPE_SECRET_KEY` in `.env`. The script uses the Stripe Node SDK, sets `quantity: 1`, and attaches metadata (`service_name=krumpbot-fit`, `service_type=physiotherapy`, `tracing_id=KRUMPPHYSIO-...`, `environment=sandbox`) so you can correlate links and payments in the Stripe dashboard.
   - **Test product link (sandbox):** [KrumpPhysio Session — £5/month](https://buy.stripe.com/test_28E7sL8jg3QG1Ol5nqcZa00) (for hackathon / Anyway bounty submission).
+  - **Validated flow:** From OpenClaw Chat/Telegram, KrumpPhysio runs `exec` → Stripe Payment Link is created in the **Anyway US sandbox** with metadata → a £5 test payment succeeds → the agent run and exec call appear as traces in the Anyway sandbox under `krumpbot-fit`.
 
-**Summary:** Anyway = measure and prove; Stripe = get paid. Website/product copy: [docs/website-description.md](docs/website-description.md).
+**Summary:** Anyway = measure and prove; Stripe = get paid. Website/product copy: [docs/website-description.md](docs/website-description.md). See also [docs/STRIPE-INTEGRATION-FIX.md](docs/STRIPE-INTEGRATION-FIX.md) and [docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md](docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md) for failure modes and full protocol.
 
 ### Optional: Quantum-inspired exercise optimisation (Guppy + Selene)
 
-Use [Guppy](https://docs.quantinuum.com/guppy/) (quantum programming in Python) and [Selene](https://docs.quantinuum.com/selene/) (Quantinuum’s emulator) to produce a **quantum-inspired exercise focus** (upper / lower / core / full) and intensity for the week. The agent can run the script via **exec** and use the result in coaching.
+Use [Guppy](https://docs.quantinuum.com/guppy/) (quantum programming in Python) and [Selene](https://docs.quantinuum.com/selene/) (Quantinuum’s emulator) to produce a **quantum-inspired exercise focus** (upper / lower / core / full) and intensity for the week. The agent runs the script via **exec** from both **OpenClaw Chat** and **Telegram** when KrumpPhysio is the default agent, and replies with a short coaching message (focus, intensity, tip, “Krump for life!”, health tip). Best practices: [docs/BEST-PRACTICES.md](docs/BEST-PRACTICES.md), [docs/OPENCLAW-TELEGRAM-READINESS.md](docs/OPENCLAW-TELEGRAM-READINESS.md).
 
 ```bash
-# Requires Python 3.10+ (check: python3 --version). Upgrade pip first.
-python3 -m venv .venv-quantum && source .venv-quantum/bin/activate
-pip install --upgrade pip
-pip install -r quantum/requirements.txt
+# Guppy requires Python 3.10+. If python3 --version is 3.9, use python3.11 (e.g. brew install python@3.11).
+python3.11 -m venv .venv-quantum && source .venv-quantum/bin/activate   # or python3 if already 3.10+
+pip install --upgrade pip && pip install -r quantum/requirements.txt
 
 # Run
 python quantum/optimise_exercises.py --shots 5

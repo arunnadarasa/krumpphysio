@@ -43,13 +43,13 @@ When the user provides **joint angles** (target vs observed), e.g. left shoulder
 
 ## Quantum-inspired exercise optimisation (optional)
 
-When the user wants a **quantum-inspired** or **quantum-optimised** exercise plan for the week, run **exec** with the Guppy + Selene script (replace path with the actual KrumpPhysio repo path):
+When the user wants a **quantum-inspired** or **quantum-optimised** exercise plan for the week, run **exec** with the Guppy + Selene script. Use the **venv Python** so guppylang/selene-sim are available (replace path with the actual KrumpPhysio repo path):
 
 ```bash
-python /path/to/KrumpPhysio/quantum/optimise_exercises.py --shots 5
+/path/to/KrumpPhysio/.venv-quantum/bin/python /path/to/KrumpPhysio/quantum/optimise_exercises.py --shots 5
 ```
 
-Parse the JSON from stdout: `focus` (upper / lower / core / full) and `intensity` (light / moderate / strong). Use them in your reply (e.g. "This week's battle rounds: **upper** focus, **moderate** intensity — quantum-inspired schedule."). Requires `pip install -r quantum/requirements.txt` (guppylang, selene-sim). See [quantum/README.md](https://github.com/arunnadarasa/krumpphysio/blob/main/quantum/README.md). If the agent has the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum), use it for Quantinuum/Guppy/Selene context.
+Parse the JSON and reply with a **short coaching message** (not raw JSON): (1) state focus and intensity (e.g. "This week's battle rounds: **core** focus, **strong** intensity — quantum-inspired"), (2) one practical tip for that focus (upper→jabs/arms; lower→stomps/legs; core→buck/stability; full→full-body), (3) "Krump for life!" and a one-line health tip. Requires `pip install -r quantum/requirements.txt` (guppylang, selene-sim). See [quantum/README.md](https://github.com/arunnadarasa/krumpphysio/blob/main/quantum/README.md). **Best practices:** Make this agent the **default** (first in `agents.list`) so exec runs on both OpenClaw Chat and Telegram; paste a short instruction first to lock in exec + comprehensive reply. See repo [BEST-PRACTICES.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/BEST-PRACTICES.md).
 
 ## Authentic krump (optional skills)
 
@@ -137,7 +137,10 @@ The goal is to **enable OpenClaw to get paid in fiat when offering physiotherapy
   ```bash
   node /path/to/KrumpPhysio/canton/create-stripe-link.js --price <cents> --currency gbp --description "KrumpPhysio session"
   ```
-  The script accepts `--price` or `--amount` (amount in cents), `--currency` (default usd), and `--description`. It uses the Stripe Node SDK and requires `stripe` + `dotenv` (`npm install` in repo). See [STRIPE.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md), [STRIPE-INTEGRATION-FIX.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md), and [STRIPE-INTEGRATION-FIX-PROTOCOL.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md) (full protocol, ACP, pitfalls).
+  The script accepts `--price` or `--amount` (amount in cents), `--currency` (default usd), and `--description`. It uses the Stripe Node SDK and requires `stripe` + `dotenv` (`npm install` in repo).
+  - **Stripe account to use:** For testing and the Anyway bounty, use the dedicated **“Anyway US sandbox”** Stripe account and place its **test** secret key in `.env` (not a different Stripe account). Make sure the sandbox account is at least minimally **verified** in Stripe’s dashboard (Stripe will prompt you), otherwise some features may be limited.
+  - **Metadata & tracing:** `create-stripe-link.js` attaches metadata (`service_name=krumpbot-fit`, `service_type=physiotherapy`, `environment=sandbox`, `tracing_id=KRUMPPHYSIO-...`) to both the product and the payment link so you can correlate links and payments in the Stripe dashboard and with Anyway traces.
+  - See [STRIPE.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md), [STRIPE-INTEGRATION-FIX.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md), and [STRIPE-INTEGRATION-FIX-PROTOCOL.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md) (full protocol, ACP, pitfalls, including common failure modes like wrong account/keys).
 
 **Summary:** Anyway = measure and prove what happened; Stripe = get paid for it.
 
