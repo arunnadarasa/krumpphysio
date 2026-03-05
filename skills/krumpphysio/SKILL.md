@@ -51,6 +51,7 @@ When the deployer has set up the local video pipeline (`python3.11 -m venv .venv
   ```
 - Valid joints: `left_shoulder`, `right_shoulder`, `left_elbow`, `right_elbow`, `left_hip`, `right_hip`, `left_knee`, `right_knee`.
 - The script returns JSON with a `summary` array (joint/target/observed) and `meta` (frames detected, smoothness, min/max angles, detection_rate, etc). The agent should **convert this into its normal scoring reply** (score /10, feedback, Laban notation, "Krump for life!" + health tip), not just echo the raw JSON.
+- In this repo we also ship a **Telegram video sidecar bot** (`video/telegram_bot.py`) that receives clips from patients, runs the analysis script, replies with a KrumpPhysio-style summary, and forwards structured metrics into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can still decide when to log to Canton or trigger Stripe/Anyway flows.
 
 ## Quantum-inspired exercise optimisation (optional)
 

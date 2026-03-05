@@ -31,6 +31,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 - **AI coach** that scores form and range of motion, gives feedback in **Krump** vocabulary and **Laban** notation
 - **Telegram** — patients message the agent; **exec** runs on both Chat and Telegram when KrumpPhysio is default (quantum plan, Stripe, Canton)
+- **Video sidecar bot** — patients upload short rehab clips to a dedicated Telegram video bot; it runs MediaPipe locally, replies with a KrumpPhysio-style score/smoothness/Laban summary, and forwards structured metrics into OpenClaw so KrumpPhysio can still decide about Canton logging and Stripe.
 - **Quantum-inspired plans** — Guppy + Selene script → weekly focus and intensity; agent replies with short coaching message (not raw JSON)
 - **Auditable** — optional session logs on a **Canton (Daml)** ledger
 - **Monetizable** — **Anyway** for observability, **Stripe** for fiat payments
@@ -41,10 +42,13 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 ## Slide 4 — How it works (user flow)
 
-1. **Patient** sends angles or a request on Telegram (e.g. “Score my right shoulder: target 90°, observed 88°, round 1”).
-2. **OpenClaw agent** (KrumpPhysio) uses **FLock** to reason and reply with a score /10, form feedback, and Laban notation.
-3. **Optional:** Agent logs the session to **Canton** via a script for tamper-evident history.
-4. **Operator** sees traces and cost in **Anyway**; can charge via **Stripe** payment links.
+1. **Patient** sends either:
+   - joint angles (text) on Telegram, or  
+   - a **short video clip** with a caption like `/analyze left_knee 90` to the video bot.
+2. **Video path:** MediaPipe-based sidecar analyses the clip, replies with a KrumpPhysio-style score and summary, and forwards structured metrics (joint, target, observed, smoothness) into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can decide about Canton logging and payments.
+3. **Direct text path:** KrumpPhysio uses **FLock** to reason and reply with a score /10, form feedback, and Laban notation.
+4. **Optional:** Agent logs the session to **Canton** via a script for tamper-evident history (tested end‑to‑end with full cryptographic party IDs and JWT).
+5. **Operator** sees traces and cost in **Anyway**; can charge via **Stripe** payment links.
 
 ---
 
@@ -56,14 +60,15 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 |-------|------------|
 | Agent runtime | **OpenClaw** |
 | LLM | **FLock** (Qwen 235B Thinking, etc.) |
-| Channel | **Telegram** |
+| Channel | **Telegram** (KrumpPhysio agent) + separate **video bot** |
 | Scoring | Node.js `score.js` (angles → score + feedback) |
+| Video analysis | Python + **MediaPipe** (`video/analyse_movement.py`, `.venv-video`) |
 | Ledger | **Canton** (Daml `SessionLog` contracts) |
 | Observability | **Anyway** (Traceloop / OpenClaw plugin) |
 | Payments | **Stripe** (Node SDK, payment links; no CLI) |
 | Quantum (optional) | **Guppy + Selene** (quantum-inspired weekly focus/intensity; exec on Chat + Telegram) |
 
-**Design:** Agent decides when to score and when to log to Canton; operator gets full observability and can monetize via Stripe. KrumpPhysio as default agent so exec (quantum, Stripe, Canton) runs on both Chat and Telegram.
+**Design:** Agent decides when to score and when to log to Canton; a sidecar video bot handles raw Telegram uploads and forwards structured metrics into OpenClaw via the OpenResponses API. Operator gets full observability and can monetize via Stripe. KrumpPhysio as default agent so exec (quantum, Stripe, Canton) runs on both Chat and Telegram.
 
 ---
 
@@ -132,9 +137,13 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 **Live demo**
 
-- Open **Telegram** → message KrumpPhysio with “Give me a quantum-inspired exercise plan” or a scoring request (e.g. angles + round).
-- Show **reply** (quantum: focus + intensity + tip + “Krump for life!”; or score /10, feedback, Laban).
-- Optional: show **Canton** Navigator or `summary.js` for session logs; **Anyway** dashboard for traces; **Stripe** test link.
+- Open **Telegram**:
+  - Path 1: message KrumpPhysio with “Give me a quantum-inspired exercise plan” or a scoring request (e.g. angles + round).  
+  - Path 2: send a short video clip to the **KrumpPhysio video bot** with caption `/analyze left_knee 90`.
+- Show **replies**:
+  - Quantum: focus + intensity + tip + “Krump for life!”.  
+  - Video: score /10, smoothness, Laban, “Krump for life!” from the video bot, plus KrumpPhysio’s follow‑up via OpenClaw if desired.
+- Optional: show **Canton** Navigator or `summary.js` for session logs; **Anyway** dashboard for traces (including OpenResponses), **Stripe** test link.
 
 *Use this slide for screen share or embedded short clip.*
 

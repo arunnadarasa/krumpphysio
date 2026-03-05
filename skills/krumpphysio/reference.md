@@ -25,6 +25,8 @@ Quick reference for agents using this skill.
   ```
 - Then reply using the same scoring pattern (score /10, feedback, Laban, "Krump for life!" + tip) rather than returning raw JSON.
 
+Optional: use the **Telegram video sidecar bot** in this repo (`video/telegram_bot.py`) to accept clips directly from patients and forward structured metrics into OpenClaw via the OpenResponses HTTP API.
+
 ## Canton log (when configured)
 
 After replying with a score, run once:

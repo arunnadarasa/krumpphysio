@@ -37,7 +37,11 @@ The JSON API expects a Bearer JWT with a **ledgerId** claim. For a ledger withou
    - `CANTON_JSON_API_BASE_URL=http://localhost:7575` (if the JSON API is on another host/port, change this)
    - `CANTON_PATIENT_PARTY` and `CANTON_PHYSIO_PARTY` to the allocated party IDs from your ledger
 
-If you see **401 "ledgerId missing in access token"**, the JWT payload is wrong or the ledger ID does not match: fix `CANTON_LEDGER_ID` (and, if needed, the party IDs), then run `node canton/jwt-dev.js` again and update `CANTON_JWT`.
+If you see **401 "ledgerId missing in access token"** or **400/403 authorization** errors, the JWT payload is wrong or the ledger/party IDs do not match:
+
+- Make sure `CANTON_LEDGER_ID` matches your sandbox ledger id (often `sandbox` when using `daml start`).
+- Make sure `CANTON_PHYSIO_PARTY` is the **full cryptographic party id** (e.g. `KrumpPhysioClinic::1220...52a`), not just the short name.
+- Then run `node canton/jwt-dev.js` again from the KrumpPhysio repo and update `CANTON_JWT` (and optionally `CANTON_API_TOKEN`) in `.env`.
 
 ## Allocating parties (correct syntax)
 

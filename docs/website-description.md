@@ -42,9 +42,10 @@ Two pillars support **OpenClaw agents getting paid when they offer physiotherapy
 
 - **Movement & ROM scoring** — Joint angles in → score out of 10, feedback, and Laban-style notation.
 - **Telegram coaching** — Patients message the agent; responses use Krump vocabulary and health-first advice. When KrumpPhysio is the default agent, **exec** runs on both Chat and Telegram (quantum plan, payment links, Canton logging).
+- **Video-based analysis (Telegram sidecar bot)** — A dedicated video bot lets patients upload short clips on Telegram. The bot runs MediaPipe pose estimation locally, replies with a KrumpPhysio-style summary (score, smoothness, Laban, “Krump for life!”), and forwards a structured summary into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can still decide about Canton logging, Stripe, and Anyway traces.
 - **Quantum-inspired exercise plans** — Guppy + Selene script produces weekly focus (upper/lower/core/full) and intensity; agent replies with a short coaching message (not raw JSON). Works from OpenClaw Chat and Telegram.
-- **Canton session logs** — Optional tamper-evident `SessionLog` contracts on a Daml ledger for auditability.
-- **Observability (Anyway)** — Traces and tool IO so you can debug, tune, and control cost.
+- **Canton session logs** — Optional tamper-evident `SessionLog` contracts on a Daml ledger for auditability. Latest setup uses full cryptographic party IDs (e.g. `KrumpPhysioClinic::1220…`) and a dev JWT, with tested end‑to‑end logging from OpenClaw.
+- **Observability (Anyway)** — Traces and tool IO so you can debug, tune, and control cost. Includes traces originating from the video bot via the OpenResponses integration.
 - **Stripe payment links** — Create one-off or product links via `canton/create-stripe-link.js` (Stripe Node SDK; no CLI required). Full integration fix protocol and 5-minute quickstart in the repo.
 - **Web search (optional)** — When configured (e.g. Kimi), the agent can use web search for up-to-date info.
 - **Reusable skill** — ClawHub skill so other OpenClaw agents can adopt the same coaching pattern. Best practices (default agent, paste instruction first, comprehensive reply) in the repo.
