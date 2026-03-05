@@ -41,6 +41,17 @@ When the user provides **joint angles** (target vs observed), e.g. left shoulder
 3. Add Laban-style notation for the movement.
 4. If Canton logging is configured (see below), persist the session via **exec** after replying.
 
+### Optional: video-based pose analysis
+
+When the deployer has set up the local video pipeline (`python3.11 -m venv .venv-video && pip install -r video/requirements.txt`), the agent can analyse **uploaded video** (locally saved path) for a single joint:
+
+- Use **exec** with the venv Python and script (replace with actual path on the machine):
+  ```bash
+  /path/to/KrumpPhysio/.venv-video/bin/python /path/to/KrumpPhysio/video/analyse_movement.py --video <path> --joint <joint> --target <degrees> --extended
+  ```
+- Valid joints: `left_shoulder`, `right_shoulder`, `left_elbow`, `right_elbow`, `left_hip`, `right_hip`, `left_knee`, `right_knee`.
+- The script returns JSON with a `summary` array (joint/target/observed) and `meta` (frames detected, smoothness, min/max angles, detection_rate, etc). The agent should **convert this into its normal scoring reply** (score /10, feedback, Laban notation, "Krump for life!" + health tip), not just echo the raw JSON.
+
 ## Quantum-inspired exercise optimisation (optional)
 
 When the user wants a **quantum-inspired** or **quantum-optimised** exercise plan for the week, run **exec** with the Guppy + Selene script. Use the **venv Python** so guppylang/selene-sim are available (replace path with the actual KrumpPhysio repo path):

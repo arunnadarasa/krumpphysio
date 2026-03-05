@@ -17,6 +17,14 @@ Quick reference for agents using this skill.
 3. Laban notation (e.g. Stomp (1) -> Jab (0.5) -> Arm Swing (1))  
 4. "Krump for life!" + one health tip  
 
+### Video option
+
+- If configured, use **exec** with the video script:
+  ```bash
+  /path/to/KrumpPhysio/.venv-video/bin/python /path/to/KrumpPhysio/video/analyse_movement.py --video <path> --joint <joint> --target <degrees> --extended
+  ```
+- Then reply using the same scoring pattern (score /10, feedback, Laban, "Krump for life!" + tip) rather than returning raw JSON.
+
 ## Canton log (when configured)
 
 After replying with a score, run once:
