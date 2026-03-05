@@ -54,6 +54,27 @@ def classify_smoothness(variance: float) -> str:
     return "high"
 
 
+def count_reps(angles: list, min_peak_distance_frames: int = 8) -> int:
+    """
+    Count movement cycles (reps) from the joint angle time series.
+    Uses local maxima of the smoothed angle signal; each peak is one extension cycle.
+    """
+    if not angles or len(angles) < min_peak_distance_frames * 2:
+        return 0
+    arr = np.array(angles, dtype=float)
+    # Light smoothing to reduce noise
+    kernel = np.ones(5) / 5
+    smoothed = np.convolve(arr, kernel, mode="same")
+    peaks = 0
+    last_peak_idx = -min_peak_distance_frames - 1
+    for i in range(1, len(smoothed) - 1):
+        if smoothed[i] >= smoothed[i - 1] and smoothed[i] >= smoothed[i + 1]:
+            if i - last_peak_idx >= min_peak_distance_frames:
+                peaks += 1
+                last_peak_idx = i
+    return peaks
+
+
 def draw_landmarks_on_frame(frame, landmarks, width, height):
     connections = [
         (11, 12), (11, 13), (13, 15), (12, 14), (14, 16),
@@ -162,6 +183,7 @@ def process_video(
     summary = [{"joint": joint, "target": target, "observed": round(observed, 1)}]
 
     if extended:
+        reps = count_reps(angles)
         return {
             "summary": summary,
             "meta": {
@@ -174,6 +196,7 @@ def process_video(
                 "variance": round(variance, 2),
                 "min_angle": round(float(np.min(angles)), 1),
                 "max_angle": round(float(np.max(angles)), 1),
+                "reps": reps,
                 "annotated_video": output_path,
                 "processing_time_ms": processing_time
             }

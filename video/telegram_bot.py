@@ -164,10 +164,14 @@ def build_reply_from_analysis(data: dict, joint: str, target: float) -> str:
         "high": "explosive with noticeable variation between frames",
     }.get(str(smoothness).lower(), f"smoothness={smoothness}")
 
+    reps = meta.get("reps")
+    reps_line = f"Reps detected: **{reps}**\n" if reps is not None else ""
+
     return (
         f"Joint: **{joint}**\n"
         f"Target angle: **{target:.1f}°**\n"
         f"Observed (average in clip): **{observed:.1f}°**\n"
+        f"{reps_line}"
         f"Score: **{score}/10** — {quality}.\n"
         f"Movement smoothness: {smooth_text}.\n"
         f"Laban: {laban}\n\n"
