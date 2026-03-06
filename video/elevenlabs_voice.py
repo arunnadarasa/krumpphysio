@@ -58,6 +58,39 @@ def _log_debug(hypothesis_id: str, location: str, message: str, data: dict) -> N
         pass
 
 
+def _error_payload(e: Exception, max_message_len: int = 500) -> dict:
+    """Build a rich payload for API/HTTP errors (status_code, body, full message)."""
+    out = {
+        "error_type": type(e).__name__,
+        "error_message": str(e)[:max_message_len],
+    }
+    # Many SDKs (e.g. ElevenLabs) attach status_code and/or response/body
+    status = getattr(e, "status_code", None) or getattr(e, "status", None)
+    if status is not None:
+        out["status_code"] = status
+    body = getattr(e, "body", None) or getattr(e, "message", None)
+    if body is not None and not isinstance(body, str):
+        try:
+            body = str(body)[:500]
+        except Exception:
+            body = "<non-string>"
+    if body is not None:
+        out["response_body"] = (body if isinstance(body, str) else str(body))[:500]
+    resp = getattr(e, "response", None)
+    if resp is not None:
+        try:
+            if hasattr(resp, "status_code"):
+                out["status_code"] = resp.status_code
+            if hasattr(resp, "text"):
+                out["response_body"] = (resp.text or "")[:500]
+            elif hasattr(resp, "content"):
+                raw = resp.content
+                out["response_body"] = (raw.decode("utf-8", errors="replace") if raw else "")[:500]
+        except Exception:
+            out["response_body"] = "<unable to read>"
+    return out
+
+
 def _get_client():
     """
     Lazily construct an ElevenLabs client.
@@ -146,7 +179,7 @@ def text_to_speech(text: str, voice_id: Optional[str] = None) -> Optional[bytes]
             "EL2",
             "video/elevenlabs_voice.py:text_to_speech",
             "TTS call failed",
-            {"error_type": type(e).__name__, "error_message": str(e)[:200]},
+            _error_payload(e),
         )
         return None
 
@@ -166,7 +199,7 @@ def text_to_speech(text: str, voice_id: Optional[str] = None) -> Optional[bytes]
                 "EL2",
                 "video/elevenlabs_voice.py:text_to_speech",
                 "Stream read failed",
-                {"error_type": type(e).__name__, "error_message": str(e)[:200]},
+                _error_payload(e),
             )
             return None
     # Handle iterable / generator of byte chunks
@@ -191,7 +224,7 @@ def text_to_speech(text: str, voice_id: Optional[str] = None) -> Optional[bytes]
             "EL2",
             "video/elevenlabs_voice.py:text_to_speech",
             "Iterable handling failed",
-            {"error_type": type(e).__name__, "error_message": str(e)[:200]},
+            _error_payload(e),
         )
     if isinstance(audio, (bytes, bytearray)):
         data = bytes(audio)
@@ -277,11 +310,17 @@ def generate_music(
                     "force_instrumental": instrumental,
                 },
             )
+        payload = {"status_code": r.status_code, "content_len": len(r.content or b"")}
+        if r.status_code != 200 and r.content:
+            try:
+                payload["response_body"] = (r.content.decode("utf-8", errors="replace"))[:500]
+            except Exception:
+                payload["response_body"] = "<binary>"
         _log_debug(
             "ELM",
             "video/elevenlabs_voice.py:generate_music",
             "Music API response",
-            {"status_code": r.status_code, "content_len": len(r.content or b"")},
+            payload,
         )
         if r.status_code != 200:
             return None
@@ -291,6 +330,6 @@ def generate_music(
             "ELM",
             "video/elevenlabs_voice.py:generate_music",
             "Music API exception",
-            {"error_type": type(e).__name__, "error_message": str(e)[:200]},
+            _error_payload(e),
         )
         return None

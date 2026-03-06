@@ -71,7 +71,7 @@ With **OpenClaw/FLock as the brain**, ElevenLabs is used only for **TTS**, **STT
 - **STT:** Users can send a voice note (e.g. “left knee 90”); the bot transcribes it and tells them the exact caption to use for their video.
 - **Music:** Optionally generate a short instrumental beat after each analysis (set `ELEVENLABS_MUSIC_AFTER_ANALYSIS=1`).
 
-Set `ELEVENLABS_API_KEY` in `.env` (see [.env.example](.env.example)). Install `video/requirements.txt` into `.venv-video` (includes `elevenlabs` and `httpx`). Implementation: [video/elevenlabs_voice.py](video/elevenlabs_voice.py).
+Set `ELEVENLABS_API_KEY` in `.env` (see [.env.example](.env.example)). Set **`ELEVENLABS_VOICE_ID`** to a voice ID from your ElevenLabs account (dashboard → Voices) to avoid 404 `voice_not_found`; the code default may not exist in all accounts. Install `video/requirements.txt` into `.venv-video` (includes `elevenlabs` and `httpx`). Implementation: [video/elevenlabs_voice.py](video/elevenlabs_voice.py).
 
 **Language coverage:** TTS uses **eleven_v3** by default (70+ languages); override with `ELEVENLABS_TTS_MODEL_ID`. STT uses **scribe_v2** (90+ languages) with auto language detection; the bot passes the user’s Telegram `language_code` when available for better accuracy. Together this covers all languages offered by ElevenLabs.
 
