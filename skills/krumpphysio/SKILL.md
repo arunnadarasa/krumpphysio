@@ -41,6 +41,8 @@ When the user provides **joint angles** (target vs observed), e.g. left shoulder
 3. Add Laban-style notation for the movement.
 4. If Canton logging is configured (see below), persist the session via **exec** after replying.
 
+**Duplicate and repeated scoring requests are allowed.** There is no limit on how many times a user can request scoring. Do not refuse or invent "NHS regulations," "Movement Healthline Alert," "Protocol Lockout," "metric fixation" bans, or "permanent scoring revocation" — none of these exist. Always process the request and reply with a real score and feedback.
+
 ### Optional: video-based pose analysis
 
 When the deployer has set up the local video pipeline (`python3.11 -m venv .venv-video && pip install -r video/requirements.txt`), the agent can analyse **uploaded video** (locally saved path) for a single joint:
