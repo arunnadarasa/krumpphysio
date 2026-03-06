@@ -17,8 +17,18 @@ try {
   // Canton integration is optional; ignore if client not present
 }
 
-const angles = JSON.parse(process.argv[2]);
-const round = process.argv[3];
+const rawAngles = process.argv[2];
+const round = process.argv[3] || '1';
+
+let angles = [];
+if (rawAngles) {
+  try {
+    const parsed = JSON.parse(rawAngles);
+    angles = Array.isArray(parsed) ? parsed : [parsed];
+  } catch (_) {
+    angles = [];
+  }
+}
 
 const prompt = `Round ${round}: Score these angles:\n${angles.map(a => `${a.joint}: target ${a.target}°, observed ${a.observed}°`).join('\n')}\nGive score/10, feedback, Laban notation.`;
 
