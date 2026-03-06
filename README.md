@@ -2,82 +2,110 @@
 
 AI krump-inspired physiotherapy coach for the **UK AI Agent Hackathon EP4 x OpenClaw**.
 
-- **Goal:** Support **SDG 3 – Good Health and Well-being** with a focus on **Target 3.4 (reduce premature mortality from non-communicable diseases)** by helping people stick to rehab and cardio routines through gamified Krump movement.
-- **Concept:** Turn daily physiotherapy and cardio exercises into Krump-style movement challenges. The agent scores form, range of motion and consistency, then frames feedback as a “battle round” to keep motivation high.
-- **Stack (high level):** OpenClaw agents using **FLock API Platform** (e.g. `qwen3-235b-a22b-thinking-2507` for brain + `qwen3-30b-a3b-instruct-coding` for code), optional vision / pose-estimation sidecar, KrumpKlaw-style scoring for battles.
+---
 
-### Canton / on-ledger session logs
+## 1. Project overview
 
-Session scores can be written to a local Daml ledger (Canton) for auditability and metrics.
-
-1. **Start the ledger** (from the Daml project):
-   ```bash
-   cd /path/to/krumpphysio-daml   # or your daml project
-   daml start
-   ```
-2. **Configure KrumpPhysio** – create `.env` in this repo with `CANTON_ENABLE=true`, party IDs, JWT, and template ID. See [canton/CANTON.md](canton/CANTON.md) for full setup (parties, JWT, template ID format).
-3. **Run a scoring round** (creates a SessionLog contract when Canton is enabled):
-   ```bash
-   node score.js '[{"joint":"left_shoulder","target":120,"observed":118}]' 1
-   ```
-4. **View on-ledger metrics**:
-   ```bash
-   node canton/summary.js
-   ```
-   Or open **Navigator** at http://localhost:7500 and check **Contracts** as the physio or patient party.
-
-### ClawHub skill for other agents
-
-A [ClawHub skill](skills/krumpphysio/SKILL.md) is included so other OpenClaw agents can learn the KrumpPhysio coach pattern (identity, scoring, Laban notation, optional Canton logging). See [skills/krumpphysio/PUBLISH.md](skills/krumpphysio/PUBLISH.md) for how to publish to ClawHub.
-
-### Optional: Anyway & Stripe (observability + fiat payments)
-
-Together these support **OpenClaw getting paid in fiat when offering physiotherapy to patients**:
-
-- **Anyway** – Observability (traces, token usage, tool IO). Does *not* process payments; it lets you measure and prove what the agent did and what it cost. Set `ANYWAY_API_KEY` in `.env` and use the Python wrapper or the OpenClaw plugin `@anyway-sh/anyway-openclaw`. See [skills/krumpphysio/SKILL.md](skills/krumpphysio/SKILL.md) § Observability.
-  ```bash
-  source .venv/bin/activate
-  python -m telemetry.trace_score '[{"joint":"left_shoulder","target":120,"observed":118}]' 1
-  ```
-- **Stripe** – Fiat payments: subscriptions, per-session fees, clinic billing. Set `STRIPE_SECRET_KEY` (and optionally `STRIPE_WEBHOOK_SECRET`) in `.env`. Never commit `.env`; use [.env.example](.env.example) as a template.
-  - **Use the correct Stripe account:** For the Anyway bounty we use a dedicated **“Anyway US sandbox”** Stripe account. Make sure `STRIPE_SECRET_KEY` comes from that sandbox (not a personal Stripe account), and complete the basic account verification Stripe asks for in its dashboard, or payments/links may not appear where you expect.
-  - **Create a payment link (no CLI needed):** `node canton/create-stripe-link.js --amount <cents> --currency gbp --description "..."` — requires `STRIPE_SECRET_KEY` in `.env`. The script uses the Stripe Node SDK, sets `quantity: 1`, and attaches metadata (`service_name=krumpbot-fit`, `service_type=physiotherapy`, `tracing_id=KRUMPPHYSIO-...`, `environment=sandbox`) so you can correlate links and payments in the Stripe dashboard.
-  - **Test product link (sandbox):** [KrumpPhysio Session — £5/month](https://buy.stripe.com/test_28E7sL8jg3QG1Ol5nqcZa00) (for hackathon / Anyway bounty submission).
-  - **Validated flow:** From OpenClaw Chat/Telegram, KrumpPhysio runs `exec` → Stripe Payment Link is created in the **Anyway US sandbox** with metadata → a £5 test payment succeeds → the agent run and exec call appear as traces in the Anyway sandbox under `krumpbot-fit`.
-
-**Summary:** Anyway = measure and prove; Stripe = get paid. Website/product copy: [docs/website-description.md](docs/website-description.md). See also [docs/STRIPE-INTEGRATION-FIX.md](docs/STRIPE-INTEGRATION-FIX.md) and [docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md](docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md) for failure modes and full protocol.
-
-### Optional: Quantum-inspired exercise optimisation (Guppy + Selene)
-
-Use [Guppy](https://docs.quantinuum.com/guppy/) (quantum programming in Python) and [Selene](https://docs.quantinuum.com/selene/) (Quantinuum’s emulator) to produce a **quantum-inspired exercise focus** (upper / lower / core / full) and intensity for the week. The agent runs the script via **exec** from both **OpenClaw Chat** and **Telegram** when KrumpPhysio is the default agent, and replies with a short coaching message (focus, intensity, tip, “Krump for life!”, health tip). Best practices: [docs/BEST-PRACTICES.md](docs/BEST-PRACTICES.md), [docs/OPENCLAW-TELEGRAM-READINESS.md](docs/OPENCLAW-TELEGRAM-READINESS.md).
-
-```bash
-# Guppy requires Python 3.10+. If python3 --version is 3.9, use python3.11 (e.g. brew install python@3.11).
-python3.11 -m venv .venv-quantum && source .venv-quantum/bin/activate   # or python3 if already 3.10+
-pip install --upgrade pip && pip install -r quantum/requirements.txt
-
-# Run
-python quantum/optimise_exercises.py --shots 5
-# Output: JSON with focus, intensity, shots (for battle-round schedule)
-```
-
-If `pip install` fails with "Could not find guppylang", see [quantum/README.md](quantum/README.md) (Python 3.10+ and pip upgrade). Compatible with the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum) (Quantinuum hackathon).
-
-### Optional: ElevenLabs (voice + music — Option B)
-
-With **OpenClaw/FLock as the brain**, ElevenLabs is used only for **TTS**, **STT**, and **music** in the Telegram video bot:
-
-- **TTS:** After each video analysis reply, the bot can send the same feedback as a voice message (accessibility / language barriers).
-- **STT:** Users can send a voice note (e.g. “left knee 90”); the bot transcribes it and tells them the exact caption to use for their video.
-- **Music:** Optionally generate a short instrumental beat after each analysis (set `ELEVENLABS_MUSIC_AFTER_ANALYSIS=1`).
-
-Set `ELEVENLABS_API_KEY` in `.env` (see [.env.example](.env.example)). Set **`ELEVENLABS_VOICE_ID`** to a voice ID from your ElevenLabs account (dashboard → Voices) to avoid 404 `voice_not_found`; the code default may not exist in all accounts. Install `video/requirements.txt` into `.venv-video` (includes `elevenlabs` and `httpx`). Implementation: [video/elevenlabs_voice.py](video/elevenlabs_voice.py).
-
-**Language coverage:** TTS uses **eleven_v3** by default (70+ languages); override with `ELEVENLABS_TTS_MODEL_ID`. STT uses **scribe_v2** (90+ languages) with auto language detection; the bot passes the user’s Telegram `language_code` when available for better accuracy. Together this covers all languages offered by ElevenLabs.
+- **Goal:** Support **SDG 3 – Good Health and Well-being** (Target 3.4: reduce premature mortality from non-communicable diseases) by helping people stick to rehab and cardio through gamified Krump movement.
+- **Concept:** Turn daily physiotherapy and cardio into Krump-style “battle rounds.” The agent scores form, range of motion, and consistency, then frames feedback with Krump vocabulary and Laban-style notation to keep motivation high.
+- **What it does:** Patients chat on **Telegram** (text or voice) or upload short **video clips**; the agent returns scores out of 10, form feedback, and “Krump for life!” tips. Optional: **quantum-inspired** weekly exercise plans (Guppy + Selene), **auditable session logs** (Canton/Daml), **observability** (Anyway), and **fiat payments** (Stripe). A **Telegram video sidecar bot** runs local MediaPipe pose analysis and can send **voice notes** (ElevenLabs TTS) for accessibility.
 
 ---
 
-See the project breakdown (Notion) for stages and timeline, and the official SDG 3 specification for context:
+## 2. Setup & installation
 
-- [Notion project breakdown](https://www.notion.so/NOTION_PROJECT_BREAKDOWN-316818b184638041a4a0fc2c40e8db34)
-- [SDG 3 – Good Health and Well-being](https://sdgs.un.org/goals/goal3)
+### Prerequisites
+
+- **Node.js** (v18+) for scoring and Canton/Stripe scripts  
+- **Python 3.10+** for quantum (Guppy/Selene) and video bot (MediaPipe, ElevenLabs)  
+- **Java 17** for Daml/Canton (optional; only if using on-ledger session logs)
+
+### Core setup
+
+1. **Clone and env**
+   ```bash
+   git clone https://github.com/arunnadarasa/krumpphysio.git && cd krumpphysio
+   cp .env.example .env   # edit with your keys; never commit .env
+   ```
+
+2. **OpenClaw + FLock**
+   - Install OpenClaw and configure FLock as the LLM provider (see [docs/IMPLEMENTATION-GUIDE-FLOCK-OPENCLAW-CANTON.md](docs/IMPLEMENTATION-GUIDE-FLOCK-OPENCLAW-CANTON.md)).
+   - Point the KrumpPhysio agent workspace to this repo (or a copy). Set **krumpbot-fit** first in `agents.list` so Chat and Telegram use it by default.
+
+3. **Scoring**
+   - From repo root: `node score.js '[{"joint":"left_shoulder","target":120,"observed":118}]' 1`  
+   - Scoring is also triggered by the agent via **exec** when users send angles in Chat or Telegram.
+
+### Optional: Canton (on-ledger session logs)
+
+1. Start the ledger (from your Daml project):
+   ```bash
+   cd /path/to/krumpphysio-daml
+   daml start
+   ```
+2. In this repo’s `.env`: `CANTON_ENABLE=true`, party IDs, JWT, template ID. See [canton/CANTON.md](canton/CANTON.md).
+3. After the agent gives a score, it can run `node canton/log-session.js ...` via exec to create a `SessionLog` contract. View with `node canton/summary.js` or Daml Navigator.
+
+### Optional: Telegram video bot (MediaPipe + ElevenLabs)
+
+```bash
+python3.11 -m venv .venv-video && source .venv-video/bin/activate
+pip install -r video/requirements.txt
+export KRUMP_VIDEO_BOT_TOKEN="<your bot token>"
+export OPENCLAW_GATEWAY_TOKEN="<gateway token>"
+# Optional: ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (required for TTS; use a voice ID from your ElevenLabs account)
+python video/telegram_bot.py
+```
+
+### Optional: Quantum (Guppy + Selene)
+
+```bash
+python3.11 -m venv .venv-quantum && source .venv-quantum/bin/activate
+pip install -r quantum/requirements.txt
+python quantum/optimise_exercises.py --shots 5
+```
+
+The agent runs this via **exec** when the user asks for a “quantum-inspired exercise plan.” See [quantum/README.md](quantum/README.md) and [docs/BEST-PRACTICES.md](docs/BEST-PRACTICES.md).
+
+### Optional: Anyway & Stripe
+
+- **Anyway:** Set `ANYWAY_API_KEY`; use the OpenClaw plugin `@anyway-sh/anyway-openclaw` (and optionally the Python tracer). Sandbox: `https://trace-dev-collector.anyway.sh/`.
+- **Stripe:** Set `STRIPE_SECRET_KEY` (use the **Anyway US sandbox** Stripe account for the bounty). Create links with `node canton/create-stripe-link.js --amount <cents> --currency gbp --description "..."`. See [docs/STRIPE-INTEGRATION-FIX.md](docs/STRIPE-INTEGRATION-FIX.md).
+
+---
+
+## 3. Architecture overview (tech stack / system design)
+
+| Layer            | Technology |
+|------------------|------------|
+| Agent runtime    | **OpenClaw** |
+| LLM              | **FLock** (e.g. Qwen 3 235B Thinking) |
+| Channel          | **Telegram** (KrumpPhysio agent) + separate **video sidecar bot** |
+| Scoring          | Node.js `score.js` (angles → score + feedback) |
+| Video analysis   | Python + **MediaPipe** (`video/analyse_movement.py`, `.venv-video`) |
+| Ledger           | **Canton** (Daml `SessionLog` contracts) |
+| Observability    | **Anyway** (OpenClaw plugin + optional Python tracer) |
+| Payments         | **Stripe** (Node SDK, payment links) |
+| Voice / music    | **ElevenLabs** (TTS/STT/music in video bot only) |
+| Quantum (opt.)   | **Guppy + Selene** (quantum-inspired weekly focus/intensity via exec) |
+
+**Design:** The **agent** (FLock) decides when to score and when to log to Canton. A **Telegram video sidecar bot** accepts video uploads, runs MediaPipe locally, replies with a KrumpPhysio-style summary (and optional voice note), and forwards structured metrics to OpenClaw via the **OpenResponses HTTP API** so the agent can still trigger Canton logging and Stripe/Anyway flows. KrumpPhysio as the **default agent** ensures **exec** (quantum script, Stripe link, Canton log) runs on both OpenClaw Chat and Telegram.
+
+---
+
+## 4. Bounty-specific integration
+
+- **FLock (LLM):** All agent reasoning and replies use **FLock** models (e.g. `qwen3-235b-a22b-thinking-2507`). No OpenAI/Anthropic in the production path. Configured in OpenClaw as the provider for KrumpPhysio.
+- **Anyway (observability):** Traces, token usage, and tool IO are sent to Anyway via the OpenClaw plugin `@anyway-sh/anyway-openclaw` (and optionally the Python tracer around scoring). Sandbox endpoint: `https://trace-dev-collector.anyway.sh/`. Anyway does **not** process payments; it provides visibility into agent behaviour and cost.
+- **Stripe (fiat payments, Anyway bounty):** For the Anyway bounty we use a dedicated **“Anyway US sandbox”** Stripe account. Payment links are created with `node canton/create-stripe-link.js` (Stripe Node SDK); metadata (`service_name=krumpbot-fit`, `tracing_id`, `environment=sandbox`) is attached for correlation in Anyway. Test product link: [KrumpPhysio Session — £5/month](https://buy.stripe.com/test_28E7sL8jg3QG1Ol5nqcZa00).
+
+**Summary:** FLock = brain; Anyway = measure and prove; Stripe = get paid (bounty: use Anyway US sandbox account and verified setup).
+
+---
+
+## ClawHub skill and docs
+
+- **Skill:** [skills/krumpphysio/SKILL.md](skills/krumpphysio/SKILL.md) — ClawHub skill so other OpenClaw agents can adopt the KrumpPhysio coaching pattern. Publish: [skills/krumpphysio/PUBLISH.md](skills/krumpphysio/PUBLISH.md).
+- **Product copy:** [docs/website-description.md](docs/website-description.md)  
+- **Pitch content:** [docs/PITCH-DECK-CONTENT.md](docs/PITCH-DECK-CONTENT.md)  
+- **SDG 3:** [https://sdgs.un.org/goals/goal3](https://sdgs.un.org/goals/goal3)
