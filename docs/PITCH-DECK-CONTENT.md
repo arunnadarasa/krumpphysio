@@ -35,6 +35,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 - **Quantum-inspired plans** — Guppy + Selene script → weekly focus and intensity; agent replies with short coaching message (not raw JSON)
 - **Auditable** — optional session logs on a **Canton (Daml)** ledger
 - **Monetizable** — **Anyway** for observability, **Stripe** for fiat payments
+- **Voice + music (optional)** — ElevenLabs TTS/STT gives patients voice notes and voice-driven captions on Telegram; when ElevenLabs Music is available the bot can also send a short instrumental beat after analysis, but the core experience (text + voice + Canton/Stripe/Anyway) works without Music.
 
 **One line:** Turn daily physio into Krump-style battle rounds so people stick with it.
 

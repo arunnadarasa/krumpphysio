@@ -17,6 +17,7 @@ import json
 import os
 import subprocess
 import time
+from io import BytesIO
 from pathlib import Path
 from typing import Tuple, Optional
 
@@ -247,7 +248,7 @@ def forward_to_openclaw(joint: str, target: float, observed: float, smoothness: 
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(
+    msg = (
         "KrumpPhysio Video Bot ready.\n"
         "Send a short video with a caption like:\n"
         "  /analyze left_knee 90\n"
@@ -255,6 +256,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "  left_shoulder 120\n"
         "and I'll analyse the joint angle from the clip."
     )
+    if os.environ.get("ELEVENLABS_API_KEY"):
+        msg += "\n\nYou can also send a voice note saying the joint and angle (e.g. \"left knee 90\"); I'll transcribe it and tell you the caption to use. Replies can be sent as voice too."
+    await update.message.reply_text(msg)
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -330,6 +334,165 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
     await message.reply_text(reply_text)
 
+    # Optional: ElevenLabs TTS — send same reply as voice (Option B: voice for accessibility)
+    # #region agent log
+    _log_path = REPO_ROOT / ".cursor" / "debug-b06977.log"
+    try:
+        _has_key = bool(os.environ.get("ELEVENLABS_API_KEY"))
+        with open(_log_path, "a", encoding="utf-8") as _f:
+            _f.write(json.dumps({"sessionId": "b06977", "hypothesisId": "H1", "location": "video/telegram_bot.py:tts_block", "message": "TTS block entered", "data": {"ELEVENLABS_API_KEY_set": _has_key}, "timestamp": int(time.time() * 1000)}) + "\n")
+    except Exception:
+        pass
+    # #endregion
+    try:
+        from elevenlabs_voice import text_to_speech
+        tts_text = reply_text.replace("**", "").strip()
+        audio_bytes = text_to_speech(tts_text) if tts_text else None
+        # #region agent log
+        try:
+            _res = "none" if audio_bytes is None else f"bytes_{len(audio_bytes)}"
+            with open(_log_path, "a", encoding="utf-8") as _f:
+                _f.write(json.dumps({"sessionId": "b06977", "hypothesisId": "H2", "location": "video/telegram_bot.py:after_tts", "message": "text_to_speech result", "data": {"result": _res}, "timestamp": int(time.time() * 1000)}) + "\n")
+        except Exception:
+            pass
+        # #endregion
+        if audio_bytes:
+            # #region agent log
+            try:
+                with open(_log_path, "a", encoding="utf-8") as _f:
+                    _f.write(json.dumps({"sessionId": "b06977", "hypothesisId": "H3", "location": "video/telegram_bot.py:before_reply_voice", "message": "sending voice", "data": {"len_bytes": len(audio_bytes)}, "timestamp": int(time.time() * 1000)}) + "\n")
+            except Exception:
+                pass
+            # #endregion
+            await message.reply_voice(voice=BytesIO(audio_bytes), filename="reply.ogg")
+    except Exception as _e:
+        # #region agent log
+        try:
+            with open(_log_path, "a", encoding="utf-8") as _f:
+                _f.write(json.dumps({"sessionId": "b06977", "hypothesisId": "H3", "location": "video/telegram_bot.py:tts_exception", "message": "reply_voice or TTS failed", "data": {"error_type": type(_e).__name__, "error_message": str(_e)[:200]}, "timestamp": int(time.time() * 1000)}) + "\n")
+        except Exception:
+            pass
+        # #endregion
+        pass
+
+    # Optional: ElevenLabs Music — short beat after analysis (engagement)
+    music_flag = os.environ.get("ELEVENLABS_MUSIC_AFTER_ANALYSIS", "").lower()
+    # #region agent log
+    try:
+        with open(_log_path, "a", encoding="utf-8") as _f:
+            _f.write(
+                json.dumps(
+                    {
+                        "sessionId": "b06977",
+                        "hypothesisId": "M1",
+                        "location": "video/telegram_bot.py:music_flag",
+                        "message": "Music flag check",
+                        "data": {"ELEVENLABS_MUSIC_AFTER_ANALYSIS": music_flag},
+                        "timestamp": int(time.time() * 1000),
+                    }
+                )
+                + "\n"
+            )
+    except Exception:
+        pass
+    # #endregion
+    if music_flag in ("1", "true", "yes"):
+        try:
+            from elevenlabs_voice import generate_music
+            prompt = "30 second instrumental beat, moderate tempo, for dance workout, no vocals"
+            music_bytes = generate_music(prompt, duration_sec=30, instrumental=True)
+            # #region agent log
+            try:
+                status = "none" if music_bytes is None else f"bytes_{len(music_bytes)}"
+                with open(_log_path, "a", encoding="utf-8") as _f:
+                    _f.write(
+                        json.dumps(
+                            {
+                                "sessionId": "b06977",
+                                "hypothesisId": "M2",
+                                "location": "video/telegram_bot.py:music_result",
+                                "message": "generate_music result",
+                                "data": {"result": status},
+                                "timestamp": int(time.time() * 1000),
+                            }
+                        )
+                        + "\n"
+                    )
+            except Exception:
+                pass
+            # #endregion
+            if music_bytes:
+                await message.reply_audio(
+                    audio=BytesIO(music_bytes),
+                    filename="krump_beat.mp3",
+                    title="Krump round beat",
+                )
+        except Exception as _e:
+            # #region agent log
+            try:
+                with open(_log_path, "a", encoding="utf-8") as _f:
+                    _f.write(
+                        json.dumps(
+                            {
+                                "sessionId": "b06977",
+                                "hypothesisId": "M3",
+                                "location": "video/telegram_bot.py:music_exception",
+                                "message": "Music generation failed",
+                                "data": {
+                                    "error_type": type(_e).__name__,
+                                    "error_message": str(_e)[:200],
+                                },
+                                "timestamp": int(time.time() * 1000),
+                            }
+                        )
+                        + "\n"
+                    )
+            except Exception:
+                pass
+            # #endregion
+
+
+async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Transcribe voice with ElevenLabs STT; if it looks like joint + target, guide user to send video."""
+    message = update.message
+    if not message or not message.voice:
+        return
+
+    try:
+        from elevenlabs_voice import speech_to_text
+    except Exception:
+        await message.reply_text("Voice input is not configured. Send a video with a text caption instead, e.g. /analyze left_knee 90")
+        return
+
+    tg_file = await context.bot.get_file(message.voice.file_id)
+    buf = BytesIO()
+    await tg_file.download_to_memory(buf)
+    audio_bytes = buf.getvalue()
+    if not audio_bytes:
+        await message.reply_text("I couldn't read that voice message. Try again or send a text caption with your video.")
+        return
+
+    lang = message.from_user.language_code if message.from_user else None
+    text = speech_to_text(audio_bytes, language_code=lang)
+    if not text or not text.strip():
+        await message.reply_text("I couldn't transcribe that. Send a short video with a caption like: /analyze left_knee 90")
+        return
+
+    parsed = parse_caption(text) or parse_caption("/analyze " + text.strip())
+    if parsed:
+        joint, target = parsed
+        await message.reply_text(
+            f"Got it — {joint} at {target:.0f}°. Send a short video of the movement with caption:\n"
+            f"/analyze {joint} {target:.0f}"
+        )
+        return
+
+    await message.reply_text(
+        "I heard you. For movement analysis, send a short video with a caption like:\n"
+        "/analyze left_knee 90\n"
+        "or say which joint and target angle (e.g. \"left knee 90\") and I'll tell you the exact caption to use."
+    )
+
 
 def main() -> None:
     """Entry point for running the Telegram video bot."""
@@ -348,6 +511,9 @@ def main() -> None:
             filters.VIDEO | filters.Document.VIDEO,
             handle_video,
         )
+    )
+    application.add_handler(
+        MessageHandler(filters.VOICE, handle_voice),
     )
 
     application.run_polling()

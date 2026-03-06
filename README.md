@@ -63,6 +63,18 @@ python quantum/optimise_exercises.py --shots 5
 
 If `pip install` fails with "Could not find guppylang", see [quantum/README.md](quantum/README.md) (Python 3.10+ and pip upgrade). Compatible with the [ClawHub quantum skill](https://clawhub.ai/arunnadarasa/quantum) (Quantinuum hackathon).
 
+### Optional: ElevenLabs (voice + music — Option B)
+
+With **OpenClaw/FLock as the brain**, ElevenLabs is used only for **TTS**, **STT**, and **music** in the Telegram video bot:
+
+- **TTS:** After each video analysis reply, the bot can send the same feedback as a voice message (accessibility / language barriers).
+- **STT:** Users can send a voice note (e.g. “left knee 90”); the bot transcribes it and tells them the exact caption to use for their video.
+- **Music:** Optionally generate a short instrumental beat after each analysis (set `ELEVENLABS_MUSIC_AFTER_ANALYSIS=1`).
+
+Set `ELEVENLABS_API_KEY` in `.env` (see [.env.example](.env.example)). Install `video/requirements.txt` into `.venv-video` (includes `elevenlabs` and `httpx`). Implementation: [video/elevenlabs_voice.py](video/elevenlabs_voice.py).
+
+**Language coverage:** TTS uses **eleven_v3** by default (70+ languages); override with `ELEVENLABS_TTS_MODEL_ID`. STT uses **scribe_v2** (90+ languages) with auto language detection; the bot passes the user’s Telegram `language_code` when available for better accuracy. Together this covers all languages offered by ElevenLabs.
+
 ---
 
 See the project breakdown (Notion) for stages and timeline, and the official SDG 3 specification for context:
