@@ -8,7 +8,7 @@ AI krump-inspired physiotherapy coach for the **UK AI Agent Hackathon EP4 x Open
 
 - **Goal:** Support **SDG 3 – Good Health and Well-being** (Target 3.4: reduce premature mortality from non-communicable diseases) by helping people stick to rehab and cardio through gamified Krump movement.
 - **Concept:** Turn daily physiotherapy and cardio into Krump-style “battle rounds.” The agent scores form, range of motion, and consistency, then frames feedback with Krump vocabulary and Laban-style notation to keep motivation high.
-- **What it does:** Patients chat on **Telegram** (text or voice) or upload short **video clips**; the agent returns scores out of 10, form feedback, and “Krump for life!” tips. Optional: **quantum-inspired** weekly exercise plans (Guppy + Selene), **auditable session logs** (Canton/Daml), **observability** (Anyway), and **fiat payments** (Stripe). A **Telegram video sidecar bot** runs local MediaPipe pose analysis and can send **voice notes** (ElevenLabs TTS) for accessibility.
+- **What it does:** Patients chat on **Telegram** (text or voice) or upload short **video clips**; the agent returns scores out of 10, form feedback, and “Krump for life!” tips. Optional: **quantum-inspired** weekly exercise plans (Guppy + Selene), **auditable session logs** (Canton/Daml), **observability** (Anyway), and **fiat payments** (Stripe). The **Telegram video sidecar bot** welcomes users with **`/start`** (command list + optional ask for name, interest, limbs), runs local MediaPipe pose analysis, and can send **voice notes** (ElevenLabs TTS) for accessibility. With **Kimi (FLock)** and **Replicate**, the bot can send KrumpGotchi media with AI descriptions and **AI-generated** exercise images and short videos (`/kimi_gen_image`, `/kimi_gen_video`).
 
 ---
 
@@ -54,11 +54,14 @@ pip install -r video/requirements.txt
 export KRUMP_VIDEO_BOT_TOKEN="<your bot token>"
 export OPENCLAW_GATEWAY_TOKEN="<gateway token>"
 # Optional: ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (required for TTS; use a voice ID from your ElevenLabs account)
+# Optional Kimi + Replicate: FLOCK_API_KEY (platform.flock.io), REPLICATE_API_TOKEN (for /kimi_image, /kimi_video, /kimi_gen_image, /kimi_gen_video)
 # Optional ZKP: SINDRI_API_KEY (attest payload to OpenClaw); SINDRI_ATTESTATION_CIRCUIT_ID (for full proof)
 # Optional privacy: KRUMP_VIDEO_DELETE_AFTER_ANALYSIS=1 (delete each video after analysis)
 # Optional KrumpGotchi: LINK_WEBSITE_URL=https://your-krumpgotchi-site.com (shown in /link reply)
 python video/telegram_bot.py
 ```
+
+**Video bot commands:** `/start` — welcome + command list + optional ask for name, interest, limbs to work on. `/help` — same as start. `/privacy` — privacy notice. `/link` — link Telegram to KrumpGotchi (if `LINK_WEBSITE_URL` set). `/exercise_demo` — KrumpGotchi avatar + sample video. `/kimi_image`, `/kimi_video` — KrumpGotchi media with Kimi’s description (requires `FLOCK_API_KEY`). `/kimi_gen_image`, `/kimi_gen_video` — AI-generated exercise image/video via Kimi + Replicate (requires `FLOCK_API_KEY` and `REPLICATE_API_TOKEN`). Send a video with caption e.g. `/analyze left_knee 90` for pose analysis.
 
 **Link Telegram (KrumpGotchi):** Users can send `/link` to the bot to get a one-time code and link their Telegram to the KrumpGotchi website. Set `LINK_WEBSITE_URL` to your web app URL. Run the link verify API so the website can validate codes: `python video/link_api.py` (default port 8765; set `LINK_API_PORT` if needed). Bot and API must share the same repo (so they share `data/telegram_link_codes.json`). See [docs/LOVABLE-KRUMPGOTCHI-PROMPT.md](docs/LOVABLE-KRUMPGOTCHI-PROMPT.md) for the Lovable prompt to build the website.
 
@@ -92,6 +95,7 @@ The agent runs this via **exec** when the user asks for a “quantum-inspired ex
 | Channel          | **Telegram** (KrumpPhysio agent) + separate **video sidecar bot** |
 | Scoring          | Node.js `score.js` (angles → score + feedback) |
 | Video analysis   | Python + **MediaPipe** (`video/analyse_movement.py`, `.venv-video`) |
+| Generated media (video bot) | **FLock (Kimi)** + **Replicate** (FLUX image, minimax/video-01) for `/kimi_gen_image`, `/kimi_gen_video` |
 | Ledger           | **Canton** (Daml `SessionLog` contracts) |
 | Observability    | **Anyway** (OpenClaw plugin + optional Python tracer) |
 | Payments         | **Stripe** (Node SDK, payment links) |
