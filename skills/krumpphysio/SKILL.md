@@ -152,12 +152,15 @@ The goal is to **enable OpenClaw to get paid in fiat when offering physiotherapy
 - **Anyway** – Observability only (traces, cost, tool IO). It does *not* process payments; it supports trust, tuning, and cost control so you can run a paid service transparently.
 - **Stripe** – Actual fiat payments: subscriptions, per-session fees, clinic billing. Set `STRIPE_SECRET_KEY` in `.env` (repo root). **Do not** use the Stripe CLI (`stripe` command) — it is not required and may not be installed. To create a payment link, use **exec** with the Node script:
   ```bash
-  node /path/to/KrumpPhysio/canton/create-stripe-link.js --price <cents> --currency gbp --description "KrumpPhysio session"
+  node /path/to/KrumpPhysio/canton/create-stripe-link.js --amount <pence_or_cents> --currency gbp --description "KrumpPhysio session"
   ```
-  The script accepts `--price` or `--amount` (amount in cents), `--currency` (default usd), and `--description`. It uses the Stripe Node SDK and requires `stripe` + `dotenv` (`npm install` in repo).
+  The script accepts `--price` or `--amount`; **amount is in smallest currency units** (pence for GBP, cents for USD). Example: £10.00 = `1000` pence.
+  - **Currency unit discipline:** For GBP use **pence** (`amount = pounds × 100`). For USD use **cents** (`amount = dollars × 100`). Never assume Stripe converts units. Validate before execution (e.g. minimum £1.00 = 100 pence for GBP).
   - **Stripe account to use:** For testing and the Anyway bounty, use the dedicated **“Anyway US sandbox”** Stripe account and place its **test** secret key in `.env` (not a different Stripe account). Make sure the sandbox account is at least minimally **verified** in Stripe’s dashboard (Stripe will prompt you), otherwise some features may be limited.
-  - **Metadata & tracing:** `create-stripe-link.js` attaches metadata (`service_name=krumpbot-fit`, `service_type=physiotherapy`, `environment=sandbox`, `tracing_id=KRUMPPHYSIO-...`) to both the product and the payment link so you can correlate links and payments in the Stripe dashboard and with Anyway traces.
-  - See [STRIPE.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md), [STRIPE-INTEGRATION-FIX.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md), and [STRIPE-INTEGRATION-FIX-PROTOCOL.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md) (full protocol, ACP, pitfalls, including common failure modes like wrong account/keys).
+  - **Test mode:** Prefix descriptions with `[TEST]` when appropriate; use Stripe test cards (e.g. `4242 4242 4242 4242`) for validation.
+  - **Metadata & tracing:** `create-stripe-link.js` attaches metadata (`service_name=krumpbot-fit`, `service_type=physiotherapy`, `environment=sandbox`, `tracing_id=KRUMPPHYSIO-...`) to both the product and the payment link so you can correlate links and payments in the Stripe dashboard and with Anyway traces. Include tracing IDs in logs for auditability (mask sensitive data).
+  - **User-facing reply:** State amounts clearly in agent replies (e.g. “Pay £10.00 (1000 pence)” not “Pay 1000”). Precision and clear labeling support compliance (e.g. NHS Digital Reg 7.2) and user safety; test-mode links must never resemble live payments.
+  - See [STRIPE.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE.md), [STRIPE-INTEGRATION-FIX.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX.md), and [STRIPE-INTEGRATION-FIX-PROTOCOL.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/STRIPE-INTEGRATION-FIX-PROTOCOL.md) (full protocol, ACP, pitfalls, including wrong account/keys and currency units).
 
 **Summary:** Anyway = measure and prove what happened; Stripe = get paid for it.
 
