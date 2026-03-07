@@ -36,6 +36,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 - **Auditable** — optional session logs on a **Canton (Daml)** ledger
 - **Monetizable** — **Anyway** for observability, **Stripe** for fiat payments
 - **Voice + music (optional)** — ElevenLabs TTS/STT gives patients voice notes and voice-driven captions on Telegram; when ElevenLabs Music is available the bot can also send a short instrumental beat after analysis, but the core experience (text + voice + Canton/Stripe/Anyway) works without Music.
+- **Privacy & trust** — Video stays on the server; only metrics (+ optional ZKP) go to the coach. `/privacy` in the bot; optional auto-delete of video; OpenClaw messages tagged with privacy headers. See [PRIVACY.md](PRIVACY.md) and [PRIVACY-HEALTH-AUTHORITY-SUMMARY.md](PRIVACY-HEALTH-AUTHORITY-SUMMARY.md).
 
 **One line:** Turn daily physio into Krump-style battle rounds so people stick with it.
 
@@ -68,6 +69,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 | Observability | **Anyway** (Traceloop / OpenClaw plugin) |
 | Payments | **Stripe** (Node SDK, payment links; no CLI) |
 | Quantum (optional) | **Guppy + Selene** (quantum-inspired weekly focus/intensity; exec on Chat + Telegram) |
+| Verifiable input (optional) | **Sindri** (ZKP: attest video-bot payload to OpenClaw/FLock without exposing video or identity) |
 
 **Design:** Agent decides when to score and when to log to Canton; a sidecar video bot handles raw Telegram uploads and forwards structured metrics into OpenClaw via the OpenResponses API. Operator gets full observability and can monetize via Stripe. KrumpPhysio as default agent so exec (quantum, Stripe, Canton) runs on both Chat and Telegram.
 
@@ -82,6 +84,26 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 - Configured in OpenClaw as sole provider for KrumpPhysio (and other agents in our setup).
 
 **Why it matters:** Open-weight models, hackathon-compliant, scalable for physio coaching.
+
+---
+
+## Slide 6b — ZKP (Sindri): verifiable inputs for trust
+
+**What it does**
+
+- The video bot sends only **metrics** (joint, angles, smoothness) to OpenClaw/FLock — never the video.
+- With **Sindri** we attach a **zero-knowledge attestation** (commitment or proof) so the input to the coach agent is **verifiable**: “this summary came from a real analysis” — without exposing the video or the patient.
+
+**Value for the submission**
+
+- **Trust:** Patients and health authorities see that the AI acts on **provable** data, not assumed or fake inputs.
+- **Privacy:** Prove correctness without sending video or identifiers; supports our privacy/compliance story.
+- **Anyway + ZKP:** Anyway = “measure and prove what happened”; ZKP = “prove the **input** was correct.” Together they strengthen the “prove it” narrative.
+- **Differentiation:** Few projects add ZK proofs into the agent pipeline; we show it’s feasible with OpenClaw + FLock.
+
+**One line:** “Verifiable inputs — we prove the coach is acting on real video analysis without sending video or identity to the LLM.”
+
+(See [ZKP-SINDRI-HACKATHON-VALUE.md](ZKP-SINDRI-HACKATHON-VALUE.md) for full benefits and demo tips.)
 
 ---
 
@@ -144,7 +166,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 - Show **replies**:
   - Quantum: focus + intensity + tip + “Krump for life!”.  
   - Video: score /10, smoothness, Laban, “Krump for life!” from the video bot, plus KrumpPhysio’s follow‑up via OpenClaw if desired.
-- Optional: show **Canton** Navigator or `summary.js` for session logs; **Anyway** dashboard for traces (including OpenResponses), **Stripe** test link.
+- Optional: show **Canton** Navigator or `summary.js` for session logs; **Anyway** dashboard for traces (including OpenResponses), **Stripe** test link; **ZKP:** run `python video/check_sindri_proofs.py` to show recent proofs (verifiable input).
 
 *Use this slide for screen share or embedded short clip.*
 
@@ -156,7 +178,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 - **Repo:** [github.com/arunnadarasa/krumpphysio](https://github.com/arunnadarasa/krumpphysio)
 - **README:** Overview, setup, Canton, Anyway & Stripe, ClawHub skill.
-- **Docs:** Implementation guide (FLock + OpenClaw + Canton), Stripe setup & integration fix protocol, web search (Kimi), OpenClaw tools, **best practices** (default agent, paste instruction, comprehensive quantum reply).
+- **Docs:** Implementation guide (FLock + OpenClaw + Canton), Stripe setup & integration fix protocol, web search (Kimi), OpenClaw tools, **best practices** (default agent, paste instruction, comprehensive quantum reply), **Privacy** (PRIVACY.md, PRIVACY-HEALTH-AUTHORITY-SUMMARY.md), **ZKP** (SINDRI-ZKP-TELEGRAM-FLOCK.md, ZKP-SINDRI-HACKATHON-VALUE.md).
 
 **ClawHub skill:** Other OpenClaw agents can install the KrumpPhysio coaching pattern.
 

@@ -54,8 +54,14 @@ pip install -r video/requirements.txt
 export KRUMP_VIDEO_BOT_TOKEN="<your bot token>"
 export OPENCLAW_GATEWAY_TOKEN="<gateway token>"
 # Optional: ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (required for TTS; use a voice ID from your ElevenLabs account)
+# Optional ZKP: SINDRI_API_KEY (attest payload to OpenClaw); SINDRI_ATTESTATION_CIRCUIT_ID (for full proof)
+# Optional privacy: KRUMP_VIDEO_DELETE_AFTER_ANALYSIS=1 (delete each video after analysis)
 python video/telegram_bot.py
 ```
+
+Optional **ZKP (Sindri):** If `SINDRI_API_KEY` is set, the video bot attests the payload sent to OpenClaw (commitment or full proof when `SINDRI_ATTESTATION_CIRCUIT_ID` is set). See [docs/SINDRI-ZKP-TELEGRAM-FLOCK.md](docs/SINDRI-ZKP-TELEGRAM-FLOCK.md).
+
+**Privacy:** For patient and health-authority confidence, see [docs/PRIVACY.md](docs/PRIVACY.md) and the one-page [docs/PRIVACY-HEALTH-AUTHORITY-SUMMARY.md](docs/PRIVACY-HEALTH-AUTHORITY-SUMMARY.md) (UK/ICO and GDPR). The bot supports `/privacy` and optional auto-deletion of video after analysis (`KRUMP_VIDEO_DELETE_AFTER_ANALYSIS=1`). Messages to OpenClaw/FLock include privacy headers (`X-KrumpPhysio-Source`, `X-KrumpPhysio-Privacy`) for a minimal-PII layer.
 
 ### Optional: Quantum (Guppy + Selene)
 
@@ -88,6 +94,7 @@ The agent runs this via **exec** when the user asks for a “quantum-inspired ex
 | Payments         | **Stripe** (Node SDK, payment links) |
 | Voice / music    | **ElevenLabs** (TTS/STT/music in video bot only) |
 | Quantum (opt.)   | **Guppy + Selene** (quantum-inspired weekly focus/intensity via exec) |
+| ZKP (opt.)       | **Sindri** (attest Telegram → OpenClaw payload for verifiable FLock input) |
 
 **Design:** The **agent** (FLock) decides when to score and when to log to Canton. A **Telegram video sidecar bot** accepts video uploads, runs MediaPipe locally, replies with a KrumpPhysio-style summary (and optional voice note), and forwards structured metrics to OpenClaw via the **OpenResponses HTTP API** so the agent can still trigger Canton logging and Stripe/Anyway flows. KrumpPhysio as the **default agent** ensures **exec** (quantum script, Stripe link, Canton log) runs on both OpenClaw Chat and Telegram.
 

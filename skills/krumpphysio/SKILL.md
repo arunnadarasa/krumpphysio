@@ -55,7 +55,7 @@ When the deployer has set up the local video pipeline (`python3.11 -m venv .venv
   ```
 - Valid joints: `left_shoulder`, `right_shoulder`, `left_elbow`, `right_elbow`, `left_hip`, `right_hip`, `left_knee`, `right_knee`.
 - The script returns JSON with a `summary` array (joint/target/observed) and `meta` (frames detected, smoothness, min/max angles, detection_rate, etc). The agent should **convert this into its normal scoring reply** (score /10, feedback, Laban notation, "Krump for life!" + health tip), not just echo the raw JSON.
-- In this repo we also ship a **Telegram video sidecar bot** (`video/telegram_bot.py`) that receives clips from patients, runs the analysis script, replies with a KrumpPhysio-style summary, and forwards structured metrics into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can still decide when to log to Canton or trigger Stripe/Anyway flows.
+- In this repo we also ship a **Telegram video sidecar bot** (`video/telegram_bot.py`) that receives clips from patients, runs the analysis script, **replies to the user immediately** (then forwards in the background so Telegram never times out), and forwards structured metrics into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can still decide when to log to Canton or trigger Stripe/Anyway flows. Optional **ZKP (Sindri)**: with `SINDRI_API_KEY` and `SINDRI_ATTESTATION_CIRCUIT_ID` set, the bot attaches a zero-knowledge attestation (commitment or proof) to the payload so the coach input is verifiable without exposing video or identity. The bot supports **`/privacy`** and optional **auto-delete of video** after analysis (`KRUMP_VIDEO_DELETE_AFTER_ANALYSIS=1`). Messages to OpenClaw include privacy headers (`X-KrumpPhysio-Source`, `X-KrumpPhysio-Privacy`) for minimal-PII handling.
 - **Optional ElevenLabs (Option B):** With `ELEVENLABS_API_KEY` set, the video bot can (1) send the same reply as a **voice message** (TTS) for accessibility, (2) accept **voice notes** and transcribe them (STT) so users can say e.g. "left knee 90" and get the caption to use, (3) optionally send a short **instrumental beat** after each analysis when `ELEVENLABS_MUSIC_AFTER_ANALYSIS=1`. Music requires ElevenLabs Music API access; when unavailable the bot still sends text + voice but skips the beat. **Set `ELEVENLABS_VOICE_ID`** to a voice ID from your ElevenLabs account (dashboard → Voices); the code default may not exist in all accounts and can cause 404 `voice_not_found` if omitted. See [video/elevenlabs_voice.py](https://github.com/arunnadarasa/krumpphysio/blob/main/video/elevenlabs_voice.py).
 
 ## Quantum-inspired exercise optimisation (optional)
@@ -164,9 +164,14 @@ The goal is to **enable OpenClaw to get paid in fiat when offering physiotherapy
 
 **Summary:** Anyway = measure and prove what happened; Stripe = get paid for it.
 
+## Privacy & verifiable input (ZKP)
+
+- **Privacy:** The video bot sends only metrics (joint, angles, smoothness) to OpenClaw; no video or Telegram IDs in the message body. Optional video deletion after analysis; `/privacy` in the bot for users. See repo [PRIVACY.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/PRIVACY.md) and [PRIVACY-HEALTH-AUTHORITY-SUMMARY.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/PRIVACY-HEALTH-AUTHORITY-SUMMARY.md) (UK/ICO, GDPR).
+- **ZKP (Sindri):** When configured, the bot attests the payload to OpenClaw so the coach input is **verifiable** (“this summary came from a real analysis”) without exposing video or identity. See [SINDRI-ZKP-TELEGRAM-FLOCK.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/SINDRI-ZKP-TELEGRAM-FLOCK.md) and [ZKP-SINDRI-HACKATHON-VALUE.md](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/ZKP-SINDRI-HACKATHON-VALUE.md).
+
 ## Stack reference
 
-- **OpenClaw** – agent framework; **FLock** – LLM provider; **Canton** – Daml ledger for SessionLog contracts; **Anyway** – optional observability (traces/tool IO) via `@anyway-sh/anyway-openclaw`.
+- **OpenClaw** – agent framework; **FLock** – LLM provider; **Canton** – Daml ledger for SessionLog contracts; **Anyway** – optional observability (traces/tool IO) via `@anyway-sh/anyway-openclaw`; **Sindri** – optional ZKP for verifiable video-bot payload.
 - Full implementation: [KrumpPhysio repo](https://github.com/arunnadarasa/krumpphysio), [Implementation guide](https://github.com/arunnadarasa/krumpphysio/blob/main/docs/IMPLEMENTATION-GUIDE-FLOCK-OPENCLAW-CANTON.md).
 
 ## Examples

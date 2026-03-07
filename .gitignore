@@ -10,6 +10,9 @@ __pycache__/
 # Video analysis outputs (generated)
 video/output/
 
+# Telegram-uploaded videos (never commit patient/clinic footage)
+video/telegram/*.mp4
+
 # Video samples (except test videos we want to include)
 # video/samples/ - keeping samples for testing
 

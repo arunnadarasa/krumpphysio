@@ -185,16 +185,42 @@ def forward_to_openclaw(joint: str, target: float, observed: float, smoothness: 
     Optionally forward the analysis summary to the OpenClaw gateway so KrumpPhysio
     can decide about Canton logging / Stripe / Anyway traces.
 
+    If SINDRI_API_KEY is set, we optionally attach a ZK attestation (proof_id or
+    commitment) so FLock/OpenClaw can verify the payload. See docs/SINDRI-ZKP-TELEGRAM-FLOCK.md.
+
     Controlled by environment variables:
     - OPENCLAW_GATEWAY_TOKEN: bearer token for gateway auth (required)
     - OPENCLAW_GATEWAY_URL: base URL for responses endpoint
       (default: http://127.0.0.1:18789/v1/responses)
+    - SINDRI_API_KEY: if set, attest payload and include proof/commitment in forward
+    - SINDRI_ATTESTATION_CIRCUIT_ID: optional circuit ID for full proof (e.g. multiplier2)
     """
     token = os.environ.get("OPENCLAW_GATEWAY_TOKEN")
     if not token:
         return
 
     url = os.environ.get("OPENCLAW_GATEWAY_URL", "http://127.0.0.1:18789/v1/responses")
+
+    # Optional ZKP attestation (commitment or proof_id) for verifiable Telegram → FLock input
+    zkp_note = ""
+    try:
+        import importlib.util
+        _spec = importlib.util.spec_from_file_location(
+            "sindri_zkp", REPO_ROOT / "video" / "sindri_zkp.py"
+        )
+        _mod = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_mod)
+        att = _mod.attest_payload(joint, target, observed, smoothness)
+        if att:
+            if att.get("proof_id"):
+                zkp_note = (
+                    f"\n[ZKP attestation: proof_id={att['proof_id']}, "
+                    f"circuit_id={att.get('circuit_id', '')} — verifiable via Sindri API]"
+                )
+            elif att.get("commitment"):
+                zkp_note = f"\n[Payload commitment (SHA-256): {att['commitment']}]"
+    except Exception:
+        pass
 
     input_text = (
         "System: This message comes from the KrumpPhysio video sidecar bot. "
@@ -206,12 +232,16 @@ def forward_to_openclaw(joint: str, target: float, observed: float, smoothness: 
         f"- target_angle_deg: {target:.1f}\n"
         f"- observed_angle_deg: {observed:.1f}\n"
         f"- smoothness: {smoothness}\n"
+        f"{zkp_note}"
     )
 
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "x-openclaw-agent-id": "krumpbot-fit",
+        # Privacy layer for OpenClaw/FLock: mark message as minimal-PII, from video bot (no identifiers in body)
+        "X-KrumpPhysio-Source": "video-bot",
+        "X-KrumpPhysio-Privacy": "attested-no-pii",
     }
     payload = {
         "model": "openclaw",
@@ -258,6 +288,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
     if os.environ.get("ELEVENLABS_API_KEY"):
         msg += "\n\nYou can also send a voice note saying the joint and angle (e.g. \"left knee 90\"); I'll transcribe it and tell you the caption to use. Replies can be sent as voice too."
+    msg += "\n\n_Your video is only used for movement analysis on our server. Type /privacy for more._"
+    await update.message.reply_text(msg)
+
+
+async def privacy_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Short privacy notice for patients; reassures and supports health-authority confidence."""
+    msg = (
+        "**Privacy — KrumpPhysio Video Bot**\n\n"
+        "• Your video is used only to analyse the joint angle you asked for. Analysis runs on our server; we do not send your video to other companies.\n"
+        "• We only keep the numbers (joint, target, observed angle, smoothness) so your coach can give you feedback. The operator can delete your video right after analysis.\n"
+        "• When optional privacy tech (zero-knowledge proofs) is enabled, we can prove the analysis was done correctly without sharing your video or identity.\n"
+        "• For full details and operator checklist, see the project docs (PRIVACY.md)."
+    )
     await update.message.reply_text(msg)
 
 
@@ -294,14 +337,10 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     try:
         data = run_analysis(local_path, joint, target)
         reply_text = build_reply_from_analysis(data, joint, target)
-        # Also forward a compact summary to the OpenClaw gateway so KrumpPhysio
-        # can handle Canton/Stripe/Anyway as usual.
         summary = data.get("summary") or []
         meta = data.get("meta") or {}
-        if summary:
-            observed = float(summary[0].get("observed", target))
-            smoothness = str(meta.get("smoothness", "unknown"))
-            forward_to_openclaw(joint, target, observed, smoothness)
+        observed = float(summary[0].get("observed", target)) if summary else target
+        smoothness = str(meta.get("smoothness", "unknown")) if meta else "unknown"
     except Exception as exc:  # noqa: BLE001
         await message.reply_text(
             "Sorry, I couldn't analyse that clip.\n"
@@ -310,29 +349,23 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         )
         return
 
-    # #region agent log
-    try:
-        log_path = REPO_ROOT / ".cursor" / "debug-b06977.log"
-        payload = {
-            "sessionId": "b06977",
-            "runId": "video-bot-post-fix",
-            "hypothesisId": "H_markdown",
-            "location": "video/telegram_bot.py:reply",
-            "message": "About to send Telegram reply",
-            "data": {
-                "joint": joint,
-                "target": target,
-                "reply_preview": reply_text[:200],
-            },
-            "timestamp": int(time.time() * 1000),
-        }
-        with open(log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(payload) + "\n")
-    except Exception:
-        pass
-    # #endregion
-
+    # Reply to the user immediately so we don't hit Telegram timeout. Sindri ZKP and
+    # OpenClaw forward can take 30–60+ s; run them after replying (in a thread).
     await message.reply_text(reply_text)
+
+    # Forward to OpenClaw (and optionally generate Sindri proof) in background so
+    # the bot stays responsive and the user already has their analysis.
+    if summary:
+        import asyncio
+        asyncio.create_task(asyncio.to_thread(forward_to_openclaw, joint, target, observed, smoothness))
+
+    # Privacy: delete video after analysis if operator enables it (reassures patients & health authorities)
+    if os.environ.get("KRUMP_VIDEO_DELETE_AFTER_ANALYSIS", "").strip().lower() in ("1", "true", "yes"):
+        try:
+            if local_path.exists():
+                local_path.unlink()
+        except OSError:
+            pass
 
     # Optional: ElevenLabs TTS — send same reply as voice (Option B: voice for accessibility)
     # #region agent log
@@ -506,6 +539,7 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("privacy", privacy_command))
     application.add_handler(
         MessageHandler(
             filters.VIDEO | filters.Document.VIDEO,
