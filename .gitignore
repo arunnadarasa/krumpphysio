@@ -13,6 +13,9 @@ video/output/
 # Telegram-uploaded videos (never commit patient/clinic footage)
 video/telegram/*.mp4
 
+# Link codes (runtime; do not commit)
+data/
+
 # Video samples (except test videos we want to include)
 # video/samples/ - keeping samples for testing
 

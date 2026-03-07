@@ -56,8 +56,11 @@ export OPENCLAW_GATEWAY_TOKEN="<gateway token>"
 # Optional: ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID (required for TTS; use a voice ID from your ElevenLabs account)
 # Optional ZKP: SINDRI_API_KEY (attest payload to OpenClaw); SINDRI_ATTESTATION_CIRCUIT_ID (for full proof)
 # Optional privacy: KRUMP_VIDEO_DELETE_AFTER_ANALYSIS=1 (delete each video after analysis)
+# Optional KrumpGotchi: LINK_WEBSITE_URL=https://your-krumpgotchi-site.com (shown in /link reply)
 python video/telegram_bot.py
 ```
+
+**Link Telegram (KrumpGotchi):** Users can send `/link` to the bot to get a one-time code and link their Telegram to the KrumpGotchi website. Set `LINK_WEBSITE_URL` to your web app URL. Run the link verify API so the website can validate codes: `python video/link_api.py` (default port 8765; set `LINK_API_PORT` if needed). Bot and API must share the same repo (so they share `data/telegram_link_codes.json`). See [docs/LOVABLE-KRUMPGOTCHI-PROMPT.md](docs/LOVABLE-KRUMPGOTCHI-PROMPT.md) for the Lovable prompt to build the website.
 
 Optional **ZKP (Sindri):** If `SINDRI_API_KEY` is set, the video bot attests the payload sent to OpenClaw (commitment or full proof when `SINDRI_ATTESTATION_CIRCUIT_ID` is set). See [docs/SINDRI-ZKP-TELEGRAM-FLOCK.md](docs/SINDRI-ZKP-TELEGRAM-FLOCK.md).
 

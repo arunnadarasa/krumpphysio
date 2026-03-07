@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KrumpGotchi — Exercise demo (image + video)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0d0d0d;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 1.5rem;
+      min-height: 100vh;
+    }
+    h1 { color: #22c55e; margin-top: 0; }
+    .section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      max-width: 640px;
+    }
+    .section h2 { color: #a78bfa; font-size: 1.1rem; margin-top: 0; }
+    .section img, .section video {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      background: #222;
+    }
+    .section video { max-height: 280px; }
+    .tag { color: #888; font-size: 0.85rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>KrumpGotchi — Exercise test run</h1>
+  <p>Image + video exercise demo. Use this to verify assets before wiring into Telegram or the Lovable app.</p>
+
+  <div class="section">
+    <h2>1. Image exercise (default avatar / left knee focus)</h2>
+    <img src="krumpgotchi-avatar.png" alt="KrumpGotchi avatar" />
+    <p class="tag">Default KrumpGotchi avatar. Replace with a specific exercise image (e.g. left_knee_extension.jpg) if you add one in <code>exercises/</code>.</p>
+  </div>
+
+  <div class="section">
+    <h2>2. Video exercise (sample)</h2>
+    <video src="exercises/sample.mp4" controls preload="metadata" playsinline>
+      Your browser does not support the video tag.
+    </video>
+    <p class="tag">Add <code>exercises/sample.mp4</code> (short exercise clip) for the video test. If the video does not load, add the file and refresh.</p>
+  </div>
+
+  <p style="color:#666; font-size:0.9rem;">Rehab as battle rounds. Powered by KrumpPhysio.</p>
+</body>
+</html>

@@ -7,35 +7,6 @@ if (!secret) {
 }
 const stripe = require('stripe')(secret);
 
-// #region agent log
-// Minimal debug log so we can distinguish gateway/agent runs from manual runs.
-try {
-  // Use fetch-based logging per debug config (server provided by tooling).
-  // This is fire-and-forget and will not affect Stripe behaviour.
-  // eslint-disable-next-line no-undef
-  fetch('http://127.0.0.1:7616/ingest/5f0664d2-0a08-4903-8919-61592e1268f8', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': 'b06977'
-    },
-    body: JSON.stringify({
-      sessionId: 'b06977',
-      location: 'create-stripe-link.js:entry',
-      message: 'Stripe payment link script invoked',
-      data: {
-        argv: process.argv,
-        envNodeEnv: process.env.NODE_ENV || null
-      },
-      hypothesisId: 'H1',
-      timestamp: Date.now()
-    })
-  }).catch(() => {});
-} catch {
-  // ignore logging errors
-}
-// #endregion
-
 async function createStripePaymentLink() {
   const { amount, currency, description } = parseArgs();
 
