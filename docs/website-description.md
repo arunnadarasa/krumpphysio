@@ -42,7 +42,7 @@ Two pillars support **OpenClaw agents getting paid when they offer physiotherapy
 
 - **Movement & ROM scoring** — Joint angles in → score out of 10, feedback, and Laban-style notation.
 - **Telegram coaching** — Patients message the agent; responses use Krump vocabulary and health-first advice. When KrumpPhysio is the default agent, **exec** runs on both Chat and Telegram (quantum plan, payment links, Canton logging).
-- **Video-based analysis (Telegram sidecar bot)** — A dedicated video bot lets patients upload short clips on Telegram. The bot runs MediaPipe pose estimation locally, replies with a KrumpPhysio-style summary (score, smoothness, Laban, “Krump for life!”), and forwards a structured summary into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can still decide about Canton logging, Stripe, and Anyway traces. Optional **ZKP (Sindri)** attests the payload; bot supports **`/privacy`** and optional auto-delete of video after analysis.
+- **Video-based analysis (Telegram sidecar bot)** — A dedicated video bot lets patients upload short clips on Telegram. **`/start`** welcomes users with a full command list and optionally asks for patient name, interest (e.g. rehab, physio), and limbs to work on. The bot runs MediaPipe pose estimation locally, replies with a KrumpPhysio-style summary (score, smoothness, Laban, “Krump for life!”), and forwards a structured summary into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can still decide about Canton logging, Stripe, and Anyway traces. Optional **ZKP (Sindri)** attests the payload; bot supports **`/privacy`** and optional auto-delete of video after analysis. With **FLock (Kimi)** and **Replicate**, the bot can send KrumpGotchi image/video with Kimi’s descriptions (`/kimi_image`, `/kimi_video`) and **AI-generated** exercise images and short videos (`/kimi_gen_image`, `/kimi_gen_video`).
 - **Voice + music (ElevenLabs, optional)** — When configured with `ELEVENLABS_API_KEY`, the video bot can reply with the same feedback as a **voice note** (TTS) and accept **voice messages** (“left knee 90”) which it transcribes into captions. With `ELEVENLABS_MUSIC_AFTER_ANALYSIS=1` and ElevenLabs Music access, it can also send a short instrumental beat after analysis for extra engagement; if Music isn’t enabled, the core text + voice experience still works.
 - **Quantum-inspired exercise plans** — Guppy + Selene script produces weekly focus (upper/lower/core/full) and intensity; agent replies with a short coaching message (not raw JSON). Works from OpenClaw Chat and Telegram.
 - **Canton session logs** — Optional tamper-evident `SessionLog` contracts on a Daml ledger for auditability. Latest setup uses full cryptographic party IDs (e.g. `KrumpPhysioClinic::1220…`) and a dev JWT, with tested end‑to‑end logging from OpenClaw.
@@ -56,7 +56,7 @@ Two pillars support **OpenClaw agents getting paid when they offer physiotherapy
 
 ## Tech stack (one line)
 
-OpenClaw + FLock + Telegram + Node scoring engine + Canton (Daml) + Anyway (observability) + Stripe (payments via Node SDK) + optional Sindri (ZKP for verifiable video-bot payload) + optional Kimi/web search.
+OpenClaw + FLock + Telegram + Node scoring engine + Canton (Daml) + Anyway (observability) + Stripe (payments via Node SDK) + optional Sindri (ZKP for verifiable video-bot payload) + optional Kimi/Replicate (video-bot image and video generation and web search).
 
 ---
 

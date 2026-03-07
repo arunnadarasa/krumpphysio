@@ -31,7 +31,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 - **AI coach** that scores form and range of motion, gives feedback in **Krump** vocabulary and **Laban** notation
 - **Telegram** — patients message the agent; **exec** runs on both Chat and Telegram when KrumpPhysio is default (quantum plan, Stripe, Canton)
-- **Video sidecar bot** — patients upload short rehab clips to a dedicated Telegram video bot; it runs MediaPipe locally, replies with a KrumpPhysio-style score/smoothness/Laban summary, and forwards structured metrics into OpenClaw so KrumpPhysio can still decide about Canton logging and Stripe.
+- **Video sidecar bot** — patients upload short rehab clips to a dedicated Telegram video bot. **`/start`** welcomes users with a full command list and optionally asks for name, interest, and limbs to work on. The bot runs MediaPipe locally, replies with a KrumpPhysio-style score/smoothness/Laban summary, and forwards structured metrics into OpenClaw so KrumpPhysio can still decide about Canton logging and Stripe. With **Kimi + Replicate**, the bot can send KrumpGotchi media with Kimi’s descriptions and **AI-generated** exercise images and short videos (`/kimi_gen_image`, `/kimi_gen_video`).
 - **Quantum-inspired plans** — Guppy + Selene script → weekly focus and intensity; agent replies with short coaching message (not raw JSON)
 - **Auditable** — optional session logs on a **Canton (Daml)** ledger
 - **Monetizable** — **Anyway** for observability, **Stripe** for fiat payments
@@ -44,9 +44,10 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 ## Slide 4 — How it works (user flow)
 
-1. **Patient** sends either:
+1. **Patient** opens the video bot and gets **`/start`** — a welcome with command list and optional ask for name, interest, and limbs. They then send either:
    - joint angles (text) on Telegram, or  
-   - a **short video clip** with a caption like `/analyze left_knee 90` to the video bot.
+   - a **short video clip** with a caption like `/analyze left_knee 90` to the video bot, or  
+   - **`/kimi_gen_image`** or **`/kimi_gen_video`** for AI-generated exercise media (Kimi + Replicate).
 2. **Video path:** MediaPipe-based sidecar analyses the clip, replies with a KrumpPhysio-style score and summary, and forwards structured metrics (joint, target, observed, smoothness) into OpenClaw via the **OpenResponses HTTP API** so KrumpPhysio can decide about Canton logging and payments.
 3. **Direct text path:** KrumpPhysio uses **FLock** to reason and reply with a score /10, form feedback, and Laban notation.
 4. **Optional:** Agent logs the session to **Canton** via a script for tamper-evident history (tested end‑to‑end with full cryptographic party IDs and JWT).
@@ -65,6 +66,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 | Channel | **Telegram** (KrumpPhysio agent) + separate **video bot** |
 | Scoring | Node.js `score.js` (angles → score + feedback) |
 | Video analysis | Python + **MediaPipe** (`video/analyse_movement.py`, `.venv-video`) |
+| Generated media (video bot) | **FLock (Kimi)** + **Replicate** (FLUX image, minimax/video-01) for `/kimi_gen_image`, `/kimi_gen_video` |
 | Ledger | **Canton** (Daml `SessionLog` contracts) |
 | Observability | **Anyway** (Traceloop / OpenClaw plugin) |
 | Payments | **Stripe** (Node SDK, payment links; no CLI) |
@@ -162,7 +164,7 @@ UK AI Agent Hackathon EP4 × OpenClaw · FLock Track · Anyway Bounty
 
 - Open **Telegram**:
   - Path 1: message KrumpPhysio with “Give me a quantum-inspired exercise plan” or a scoring request (e.g. angles + round).  
-  - Path 2: send a short video clip to the **KrumpPhysio video bot** with caption `/analyze left_knee 90`.
+  - Path 2: open the **KrumpPhysio video bot** — `/start` for welcome and command list — then send a short video clip with caption `/analyze left_knee 90`, or try `/kimi_gen_image` / `/kimi_gen_video` for AI-generated exercise media.
 - Show **replies**:
   - Quantum: focus + intensity + tip + “Krump for life!”.  
   - Video: score /10, smoothness, Laban, “Krump for life!” from the video bot, plus KrumpPhysio’s follow‑up via OpenClaw if desired.
